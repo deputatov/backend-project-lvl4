@@ -4,7 +4,7 @@
    "description": "fastify-nodejs-application",
    "main": "",
   "engines": {
-    "node": ">=14"
+    "node": "14.7.0"
   },
    "scripts": {
       "test": "jest",

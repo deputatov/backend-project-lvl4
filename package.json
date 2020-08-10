@@ -3,6 +3,9 @@
    "version": "0.1.0",
    "description": "fastify-nodejs-application",
    "main": "",
+  "engines": {
+    "node": ">=14"
+  },
    "scripts": {
       "test": "jest",
       "build-configs": "babel webpack.config.js --out-dir dist && cp knexfile.js dist",

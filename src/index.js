@@ -13,6 +13,6 @@ export default () => {
   });
 
   rollbar.log('Hello world!');
-
+  console.log('test');
   // app.use(rollbar.errorHandler());
 };

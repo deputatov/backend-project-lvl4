@@ -1,7 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Rollbar from 'rollbar';
 // import fastifyExpress from 'fastify-express';
-import app from '../server/index.js';
+// import app from '../server/index.js';
 
 export default () => {
   // app.register(fastifyExpress);
@@ -14,5 +14,5 @@ export default () => {
 
   rollbar.log('Hello world!');
 
-  app.use(rollbar.errorHandler());
+  // app.use(rollbar.errorHandler());
 };

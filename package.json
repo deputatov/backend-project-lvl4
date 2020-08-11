@@ -3,9 +3,9 @@
    "version": "0.1.0",
    "description": "fastify-nodejs-application",
    "main": "",
-  "engines": {
-    "node": "14.7.0"
-  },
+   "engines": {
+      "node": "14.7.0"
+   },
    "scripts": {
       "test": "jest",
       "build-configs": "babel webpack.config.js --out-dir dist && cp knexfile.js dist",
@@ -27,7 +27,7 @@
    "homepage": "https://github.com/hexlet-boilerplates/fastify-nodejs-application.git#readme",
    "dependencies": {
       "bootstrap": "^4.5.0",
-      "fastify": "^3.1.1",
+      "fastify": "^3.2.0",
       "fastify-error-page": "^4.0.0",
       "fastify-express": "^0.1.0",
       "fastify-flash": "^2.0.2",

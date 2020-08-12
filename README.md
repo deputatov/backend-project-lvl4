@@ -1,10 +1,13 @@
-# fastify-nodejs-application
+# Project "Task manager"
 
-[![Node CI](https://github.com/hexlet-boilerplates/fastify-nodejs-application/workflows/Node%20CI/badge.svg)](https://github.com/hexlet-boilerplates/fastify-nodejs-application/actions)
+[![Maintainability](https://api.codeclimate.com/v1/badges/5957b7419b38d9189512/maintainability)](https://codeclimate.com/github/deputatov/backend-project-lvl4/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/5957b7419b38d9189512/test_coverage)](https://codeclimate.com/github/deputatov/backend-project-lvl4/test_coverage)
 
-[![Hexlet Ltd. logo](https://raw.githubusercontent.com/Hexlet/hexletguides.github.io/master/images/hexlet_logo128.png)](https://ru.hexlet.io/pages/about?utm_source=github&utm_medium=link&utm_campaign=koa-nodejs-application)
+Project [backend-project-lvl4](https://ru.hexlet.io/professions/backend/projects/6)
 
-This repository is created and maintained by the team and the community of Hexlet, an educational project. [Read more about Hexlet (in Russian)](https://ru.hexlet.io/pages/about?utm_source=github&utm_medium=link&utm_campaign=koa-nodejs-application).
+Mentor [Roman Pushkov](https://ru.hexlet.io/u/aenglisc)
+
+[App](https://afternoon-sierra-44565.herokuapp.com/)
 
 ## Setup
 

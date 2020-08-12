@@ -13,6 +13,9 @@ import fastifyMethodOverride from 'fastify-method-override';
 import fastifyObjectionjs from 'fastify-objectionjs';
 import Pug from 'pug';
 import i18next from 'i18next';
+
+import Rollbar from 'rollbar';
+
 import ru from './locales/ru.js';
 import webpackConfig from '../webpack.config.js';
 
@@ -24,6 +27,12 @@ import models from './models/index.js';
 const mode = process.env.NODE_ENV || 'development';
 const isProduction = mode === 'production';
 const isDevelopment = mode === 'development';
+
+const rollbar = new Rollbar({
+  accessToken: '2d6040f98f2b461d8ea09405ecfbf315',
+  captureUncaught: true,
+  captureUnhandledRejections: true,
+});
 
 const setUpViews = (app) => {
   const { devServer } = webpackConfig;
@@ -79,6 +88,10 @@ const addHooks = (app) => {
       req.currentUser = await app.objection.models.user.query().findById(userId);
       req.signedIn = true;
     }
+  });
+
+  app.addHook('onError', async (request, reply, error) => {
+    rollbar.log(error);
   });
 };
 

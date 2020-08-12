@@ -14,6 +14,7 @@ import fastifyObjectionjs from 'fastify-objectionjs';
 import Pug from 'pug';
 import i18next from 'i18next';
 
+import dotenv from 'dotenv';
 import Rollbar from 'rollbar';
 
 import ru from './locales/ru.js';
@@ -23,6 +24,8 @@ import addRoutes from './routes/index.js';
 import getHelpers from './helpers/index.js';
 import knexConfig from '../knexfile.js';
 import models from './models/index.js';
+
+dotenv.config();
 
 const mode = process.env.NODE_ENV || 'development';
 const isProduction = mode === 'production';
@@ -122,7 +125,7 @@ export default () => {
   addHooks(app);
 
   const rollbar = new Rollbar({
-    accessToken: '2d6040f98f2b461d8ea09405ecfbf315',
+    accessToken: process.env.ROLLBAR_ACCESS_TOKEN,
     captureUncaught: true,
     captureUnhandledRejections: true,
   });

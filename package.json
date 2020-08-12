@@ -1,7 +1,7 @@
 {
-   "name": "fastify-nodejs-application",
+   "name": "task-manager",
    "version": "0.1.0",
-   "description": "fastify-nodejs-application",
+   "description": "task-manager",
    "main": "",
    "engines": {
       "node": "12.18.3"

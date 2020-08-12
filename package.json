@@ -3,9 +3,6 @@
    "version": "0.1.0",
    "description": "task-manager",
    "main": "",
-   "engines": {
-      "node": "12.18.3"
-   },
    "scripts": {
       "test": "jest",
       "build-configs": "babel webpack.config.js --out-dir dist && cp knexfile.js dist",

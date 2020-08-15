@@ -18,6 +18,8 @@ export default class User extends unique(Model) {
       required: ['email', 'password'],
       properties: {
         id: { type: 'integer' },
+        firstName: { type: 'string', minLength: 1, maxLength: 255 },
+        lastName: { type: 'string', minLength: 1, maxLength: 255 },
         email: { type: 'string', format: 'email' },
         password: { type: 'string', minLength: 3 },
       },

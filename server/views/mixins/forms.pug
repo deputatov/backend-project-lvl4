@@ -10,15 +10,20 @@ mixin input(entity, propertyName, errors = [])
     label= propertyName
     input(
       name=getInputName(entity, propertyName)
-      class='form-control'
+      class=error ? 'form-control is-invalid' : 'form-control'
       value=_.get(entity, propertyName, '')
     )&attributes(attributes)
     if error
-      .form-control-feedback= error.map(({ message }) => message).join('. ')
+      .form-control-feedback.invalid-feedback=error.map(({ message }) => message).join('. ')
 
 mixin submit(form = null)
   .form-group
     input(class='btn btn-primary' type='submit')&attributes(attributes)
+
+//- mixin submitTo(form=null, method)
+//-   input(name='_method', type='hidden' value=method)
+//-   .form-group
+//-     input(class='btn btn-primary' type='submit')&attributes(attributes)
 
 mixin buttonTo(action, method)
   form(action=action, method="post")

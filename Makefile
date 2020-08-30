@@ -22,3 +22,6 @@ lint:
 
 test:
 	npm run test
+
+make debug:
+	DEBUG=knex:query make start

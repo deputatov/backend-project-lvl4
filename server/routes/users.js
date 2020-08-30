@@ -18,12 +18,58 @@ export default (app) => {
         const user = await app.objection.models.user.fromJson(req.body.object);
         await app.objection.models.user.query().insert(user);
         req.flash('info', i18next.t('flash.users.create.success'));
-        reply.redirect(app.reverse('root'));
+        reply.code(201).redirect(302, app.reverse('root'));
         return reply;
       } catch ({ data }) {
         req.flash('error', i18next.t('flash.users.create.error'));
-        reply.render('users/new', { user: req.body.object, errors: data });
+        reply.code(422).render('users/new', { user: req.body.object, errors: data });
         return reply;
       }
+    })
+    .get('/users/:id/edit', async (req, reply) => {
+      if (!req.signedIn) {
+        req.flash('error', i18next.t('flash.users.authorizationError'));
+        reply.code(401).redirect(302, app.reverse('root'));
+        return reply;
+      }
+      if (req.currentUser.id !== Number(req.params.id)) {
+        req.flash('error', i18next.t('flash.users.accessError'));
+        reply.code(403).redirect(302, app.reverse('users'));
+        return reply;
+      }
+      reply.render('users/edit', { user: req.currentUser.toJSON() });
+      return reply;
+    })
+    .patch('/users/:id', async (req, reply) => {
+      const { id } = req.params;
+      const { object } = req.body;
+      try {
+        const user = await app.objection.models.user.query().findById(id);
+        await user.$query().patch(object);
+        req.flash('info', i18next.t('flash.users.update.success'));
+        reply.redirect(app.reverse('users'));
+        return reply;
+      } catch ({ data }) {
+        req.flash('error', i18next.t('flash.users.update.error'));
+        reply.code(422).render('users/edit', { user: { id, ...object }, errors: data });
+        return reply;
+      }
+    })
+    .delete('/users/:id', async (req, reply) => {
+      if (!req.signedIn) {
+        req.flash('error', i18next.t('flash.users.authorizationError'));
+        reply.code(401).redirect(302, app.reverse('root'));
+        return reply;
+      }
+      if (req.currentUser.id !== Number(req.params.id)) {
+        req.flash('error', i18next.t('flash.users.accessError'));
+        reply.code(403).redirect(302, app.reverse('users'));
+        return reply;
+      }
+      await app.objection.models.user.query().deleteById(req.params.id);
+      req.session.delete();
+      req.flash('info', i18next.t('flash.users.delete.succes'));
+      reply.code(204).redirect(302, app.reverse('users'));
+      return reply;
     });
 };

@@ -1,6 +1,6 @@
 module.exports = {
   translation: {
-    appName: 'Fastify Шаблон',
+    appName: 'Менеджер задач',
     flash: {
       session: {
         create: {
@@ -16,6 +16,16 @@ module.exports = {
           error: 'Не удалось зарегистрировать',
           success: 'Пользователь успешно зарегистрирован',
         },
+        delete: {
+          error: 'Не удалось удалить пользователя',
+          success: 'Пользователь успешно удалён',
+        },
+        update: {
+          error: 'Не удалось изменить пользователя',
+          success: 'Пользователь успешно изменён',
+        },
+        authorizationError: 'Доступ запрещён! Пожалуйста, авторизируйтесь',
+        accessError: 'Вы не можете редактировать или удалять этого пользователя',
       },
     },
     layouts: {
@@ -35,14 +45,20 @@ module.exports = {
       },
       users: {
         id: 'ID',
-        firstName: 'Имя',
-        lastName: 'Фамилия',
+        fullName: 'Полное имя',
         email: 'Email',
         password: 'Пароль',
         createdAt: 'Дата создания',
         new: {
           submit: 'Сохранить',
           signUp: 'Регистрация',
+        },
+        update: {
+          submit: 'Изменить',
+          title: 'Изменение пользователя',
+        },
+        delete: {
+          submit: 'Удалить',
         },
       },
       welcome: {

@@ -1,6 +1,9 @@
 // @ts-check
 
 const path = require('path');
+const dotenv = require('dotenv');
+
+dotenv.config();
 
 const migrations = {
   directory: path.resolve('server', 'migrations'),
@@ -19,11 +22,16 @@ module.exports = {
     connection: ':memory:',
     migrations,
   },
+  // production: {
+  //   client: 'sqlite3',
+  //   connection: {
+  //     filename: './database.sqlite',
+  //   },
+  //   migrations,
+  // },
   production: {
-    client: 'sqlite3',
-    connection: {
-      filename: './database.sqlite',
-    },
+    client: 'postgresql',
+    connection: process.env.DATABASE_URL,
     migrations,
   },
 };

@@ -36,6 +36,7 @@ module.exports = {
       ssl: {
         rejectUnauthorized: false,
       },
+      sslmode: 'require',
     },
     migrations,
   },

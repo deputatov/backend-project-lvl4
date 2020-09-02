@@ -22,13 +22,6 @@ module.exports = {
     connection: ':memory:',
     migrations,
   },
-  // production: {
-  //   client: 'sqlite3',
-  //   connection: {
-  //     filename: './database.sqlite',
-  //   },
-  //   migrations,
-  // },
   production: {
     client: 'pg',
     connection: {

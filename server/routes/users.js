@@ -37,7 +37,8 @@ export default (app) => {
         reply.code(403).redirect(302, app.reverse('users'));
         return reply;
       }
-      reply.render('users/edit', { user: req.currentUser.toJSON() });
+      const data = { user: req.currentUser.$toJson() };
+      reply.render('users/edit', data);
       return reply;
     })
     .patch('/users/:id', async (req, reply) => {

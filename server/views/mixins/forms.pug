@@ -20,11 +20,6 @@ mixin submit(form = null)
   .form-group
     input(class='btn btn-primary' type='submit')&attributes(attributes)
 
-//- mixin submitTo(form=null, method)
-//-   input(name='_method', type='hidden' value=method)
-//-   .form-group
-//-     input(class='btn btn-primary' type='submit')&attributes(attributes)
-
 mixin buttonTo(action, method)
   form(action=action, method="post")
     input(name="_method" type="hidden" value=method)

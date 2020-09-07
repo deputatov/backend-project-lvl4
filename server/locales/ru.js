@@ -31,6 +31,9 @@ module.exports = {
     layouts: {
       application: {
         users: 'Пользователи',
+        statuses: 'Статусы',
+        labels: 'Метки',
+        tasks: 'Задачи',
         signIn: 'Вход',
         signUp: 'Регистрация',
         signOut: 'Выход',
@@ -56,6 +59,23 @@ module.exports = {
         update: {
           submit: 'Изменить',
           title: 'Изменение пользователя',
+        },
+        delete: {
+          submit: 'Удалить',
+        },
+      },
+      statuses: {
+        id: 'ID',
+        name: 'Наименование',
+        createdAt: 'Дата создания',
+        new: {
+          submit: 'Сохранить',
+          title: 'Создание статуса',
+          create: 'Создать статус',
+        },
+        update: {
+          submit: 'Изменить',
+          title: 'Изменение статуса',
         },
         delete: {
           submit: 'Удалить',

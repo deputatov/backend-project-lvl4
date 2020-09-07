@@ -27,6 +27,37 @@ module.exports = {
         authorizationError: 'Доступ запрещён! Пожалуйста, авторизируйтесь',
         accessError: 'Вы не можете редактировать или удалять этого пользователя',
       },
+      statuses: {
+        create: {
+          error: 'Не удалось создать статус',
+          success: 'Статус успешно создан',
+        },
+        delete: {
+          error: 'Не удалось удалить статус',
+          success: 'Статус успешно удалён',
+        },
+        update: {
+          error: 'Не удалось изменить статус',
+          success: 'Статус успешно изменён',
+        },
+      },
+      labels: {
+        create: {
+          error: 'Не удалось создать метку',
+          success: 'Метка успешно создана',
+        },
+        delete: {
+          error: 'Не удалось удалить метку',
+          success: 'Метка успешно удалена',
+        },
+        update: {
+          error: 'Не удалось изменить метку',
+          success: 'Метка успешно изменена',
+        },
+      },
+      tasks: {
+
+      },
     },
     layouts: {
       application: {
@@ -80,6 +111,26 @@ module.exports = {
         delete: {
           submit: 'Удалить',
         },
+      },
+      labels: {
+        id: 'ID',
+        name: 'Наименование',
+        createdAt: 'Дата создания',
+        new: {
+          submit: 'Сохранить',
+          title: 'Создание метки',
+          create: 'Создать метку',
+        },
+        update: {
+          submit: 'Изменить',
+          title: 'Изменение метки',
+        },
+        delete: {
+          submit: 'Удалить',
+        },
+      },
+      tasks: {
+
       },
       welcome: {
         index: {

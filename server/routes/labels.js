@@ -3,7 +3,7 @@ import i18next from 'i18next';
 export default (app) => {
   app
     .get('/labels', { name: 'labels' }, async (req, reply) => {
-      const labels = await app.objection.models.taskLabel.query();
+      const labels = await app.objection.models.label.query();
       reply.render('labels/index', { labels });
       return reply;
     })
@@ -13,8 +13,8 @@ export default (app) => {
     })
     .post('/labels', async (req, reply) => {
       try {
-        const label = await app.objection.models.taskLabel.fromJson(req.body.object);
-        await app.objection.models.taskLabel.query().insert(label);
+        const label = await app.objection.models.label.fromJson(req.body.object);
+        await app.objection.models.label.query().insert(label);
         req.flash('info', i18next.t('flash.labels.create.success'));
         reply.code(201).redirect(302, app.reverse('labels'));
         return reply;
@@ -25,7 +25,7 @@ export default (app) => {
       }
     })
     .get('/labels/:id/edit', async (req, reply) => {
-      const result = await app.objection.models.taskLabel
+      const result = await app.objection.models.label
         .query()
         .findById(req.params.id);
       const data = { label: result.$toJson() };
@@ -36,7 +36,7 @@ export default (app) => {
       const { id } = req.params;
       const { object } = req.body;
       try {
-        const label = await app.objection.models.taskLabel.query().findById(id);
+        const label = await app.objection.models.label.query().findById(id);
         await label.$query().patch(object);
         req.flash('info', i18next.t('flash.labels.update.success'));
         reply.redirect(app.reverse('labels'));
@@ -48,7 +48,7 @@ export default (app) => {
       }
     })
     .delete('/labels/:id', async (req, reply) => {
-      await app.objection.models.taskLabel.query().deleteById(req.params.id);
+      await app.objection.models.label.query().deleteById(req.params.id);
       req.flash('info', i18next.t('flash.labels.delete.success'));
       reply.code(204).redirect(302, app.reverse('labels'));
       return reply;

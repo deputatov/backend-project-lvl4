@@ -1,8 +1,5 @@
-// @ts-check
-
 import { Model } from 'objection';
 import objectionUnique from 'objection-unique';
-
 import encrypt from '../lib/secure.js';
 
 const unique = objectionUnique({ fields: ['email'] });
@@ -10,6 +7,10 @@ const unique = objectionUnique({ fields: ['email'] });
 export default class User extends unique(Model) {
   static get tableName() {
     return 'users';
+  }
+
+  static get virtualAttributes() {
+    return ['fullName'];
   }
 
   static get jsonSchema() {
@@ -32,5 +33,27 @@ export default class User extends unique(Model) {
 
   get fullName() {
     return `${this.firstName} ${this.lastName}`;
+  }
+
+  static get relationMappings() {
+    const Task = require('./Task.js');
+    return {
+      owner: {
+        relation: Model.HasManyRelation,
+        modelClass: Task,
+        join: {
+          from: 'users.id',
+          to: 'tasks.author_id',
+        },
+      },
+      executor: {
+        relation: Model.HasManyRelation,
+        modelClass: Task,
+        join: {
+          from: 'users.id',
+          to: 'tasks.executor_id',
+        },
+      },
+    };
   }
 }

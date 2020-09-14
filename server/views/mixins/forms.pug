@@ -24,3 +24,24 @@ mixin buttonTo(action, method)
   form(action=action, method="post")
     input(name="_method" type="hidden" value=method)
     input(type='submit')&attributes(attributes)
+
+mixin select(entity, propertyName, labelName, errors = [])
+  - error = _.get(errors, propertyName)
+  .form-group(class=(errors[propertyName] && 'has-danger'))
+    label=labelName
+    select(
+      class=error ? 'form-control is-invalid' : 'form-control'
+      name=getInputName(entity, propertyName)
+     )&attributes(attributes)
+      option
+      for elem in entity[propertyName]
+        option(value=elem.key) #{elem.value}
+
+mixin textarea(entity, propertyName, labelName)
+  .form-group
+    label=labelName
+    textarea(
+      class='form-control'
+      name=getInputName(entity, propertyName)
+      rows=3
+     )&attributes(attributes)

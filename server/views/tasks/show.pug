@@ -1,0 +1,30 @@
+extends ../layouts/application.pug
+
+block content
+  .jumbotron.p-4
+    h2 #{task.name}
+    p #{task.description}
+    hr
+    .container
+      .row.p-1
+        .col Автор
+        .col  #{task.authors.fullName}
+      .row.p-1
+        .col Исполнитeль
+        .col #{task.executors.fullName}
+      .row.p-1
+        .col Статус
+        .col #{task.statuses.name}
+      .row.p-1
+        .col Дата создания
+        .col #{formatDate(task.createdAt)}
+      .row.p-1
+        .col
+          h6 Метки:
+          ul
+            for label in task.labels
+              li #{label.name}
+      .row.p-1
+        .col
+          a(href=`/tasks/${task.id}/edit`)=t('views.tasks.update.submit')
+          +buttonTo(`/tasks/${task.id}`, 'delete')(class='btn btn-link', value=t('views.tasks.delete.submit'))

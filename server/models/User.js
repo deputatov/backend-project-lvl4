@@ -1,10 +1,10 @@
-import { Model } from 'objection';
+import { Model, raw } from 'objection';
 import objectionUnique from 'objection-unique';
 import encrypt from '../lib/secure.js';
 
 const unique = objectionUnique({ fields: ['email'] });
 
-export default class User extends unique(Model) {
+class User extends unique(Model) {
   static get tableName() {
     return 'users';
   }
@@ -56,4 +56,14 @@ export default class User extends unique(Model) {
       },
     };
   }
+
+  static get modifiers() {
+    return {
+      getUsers(query, selectedId) {
+        query.select('*', raw('(case id when ? then "selected" end) as selected', selectedId));
+      },
+    };
+  }
 }
+
+module.exports = User;

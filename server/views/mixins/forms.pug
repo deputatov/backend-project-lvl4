@@ -35,7 +35,9 @@ mixin select(entity, propertyName, labelName, errors = [])
      )&attributes(attributes)
       option
       for elem in entity[propertyName]
-        option(value=elem.key) #{elem.value}
+        option(value=elem.id selected=elem.selected) #{elem.name || elem.fullName}
+    if error
+      .form-control-feedback.invalid-feedback=error.map(({ message }) => message).join('. ')
 
 mixin textarea(entity, propertyName, labelName)
   .form-group
@@ -44,4 +46,4 @@ mixin textarea(entity, propertyName, labelName)
       class='form-control'
       name=getInputName(entity, propertyName)
       rows=3
-     )&attributes(attributes)
+     )&attributes(attributes) #{_.get(entity, propertyName, '')}

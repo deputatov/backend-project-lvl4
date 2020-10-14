@@ -1,9 +1,9 @@
-import { Model } from 'objection';
+import { Model, raw } from 'objection';
 import objectionUnique from 'objection-unique';
 
 const unique = objectionUnique({ fields: ['name'] });
 
-export default class TaskStatus extends unique(Model) {
+class TaskStatus extends unique(Model) {
   static get tableName() {
     return 'statuses';
   }
@@ -20,7 +20,7 @@ export default class TaskStatus extends unique(Model) {
   }
 
   static get relationMappings() {
-    const Task = require('./Task.js');
+    const Task = require('./Task');
     return {
       tasks: {
         relation: Model.HasManyRelation,
@@ -32,4 +32,14 @@ export default class TaskStatus extends unique(Model) {
       },
     };
   }
+
+  static get modifiers() {
+    return {
+      getStatuses(query, id) {
+        query.select('*', raw('(case id when ? then "selected" end) as selected', id));
+      },
+    };
+  }
 }
+
+module.exports = TaskStatus;

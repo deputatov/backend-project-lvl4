@@ -1,9 +1,9 @@
-import { Model } from 'objection';
+import { Model, raw } from 'objection';
 import objectionUnique from 'objection-unique';
 
 const unique = objectionUnique({ fields: ['name'] });
 
-export default class Label extends unique(Model) {
+class Label extends unique(Model) {
   static get tableName() {
     return 'labels';
   }
@@ -20,16 +20,38 @@ export default class Label extends unique(Model) {
   }
 
   static get relationMappings() {
-    const TaskLabel = require('./TaskLabel.js');
+    const Task = require('./Task');
     return {
       tasks: {
-        relation: Model.HasManyRelation,
-        modelClass: TaskLabel,
+        relation: Model.ManyToManyRelation,
+        modelClass: Task,
         join: {
           from: 'labels.id',
-          to: 'tasks_labels.label_id',
+          through: {
+            from: 'tasks_labels.label_id',
+            to: 'tasks_labels.task_id',
+          },
+          to: 'tasks.id',
         },
       },
     };
   }
+
+  static get modifiers() {
+    return {
+      getLabels(query, selectedIds) {
+        query.select('id', 'name', 't2.selected').leftJoin(
+          Label
+            .query()
+            .select('id as selected_id', raw('"selected" as selected'))
+            .whereIn('selected_id', selectedIds)
+            .as('t2'),
+          't2.selected_id',
+          'id',
+        );
+      },
+    };
+  }
 }
+
+module.exports = Label;

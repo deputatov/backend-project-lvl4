@@ -1,6 +1,5 @@
-
-exports.up = (knex) => (
-  knex.schema
+exports.up = (knex) => {
+  return knex.schema
     .createTable('users', (table) => {
       table.increments('id').primary();
       table.string('first_name');
@@ -67,13 +66,13 @@ exports.up = (knex) => (
         .onDelete('CASCADE')
         .index();
     })
-);
+};
 
-exports.down = (knex) => (
-  knex.schema
+exports.down = (knex) => {
+  return knex.schema
     .dropTableIfExists('users')
     .dropTableIfExists('statuses')
     .dropTableIfExists('labels')
     .dropTableIfExists('tasks')
     .dropTableIfExists('tasks_labels')
-);
+};

@@ -23,7 +23,7 @@ export default (app) => {
       } catch (err) {
         if (err instanceof ValidationError) {
           req.flash('error', i18next.t('flash.statuses.create.error'));
-          reply.code(err.statusCode).render('statuses/new', { status: req.body.object, errors: data });
+          reply.code(err.statusCode).render('statuses/new', { status: req.body.object, errors: err.data });
           return reply;
         }
         reply.code(err.statusCode).type('application/json').send(err.data);
@@ -32,34 +32,62 @@ export default (app) => {
     })
 
     .get('/statuses/:id/edit', async (req, reply) => {
-      const result = await app.objection.models.taskStatus
-        .query()
-        .findById(req.params.id);
-      const data = { status: result.$toJson() };
-      reply.render('statuses/edit', data);
-      return reply;
+      try {
+        const toEdit = await app.objection.models.taskStatus.query().findById(req.params.id);
+        if (toEdit) {
+          reply.render('statuses/edit', { status: { ...toEdit } });
+          return reply;
+        }
+        reply.code(404).type('text/plain').send('Not Found');
+        return reply;
+      } catch (err) {
+        reply.code(err.statusCode).type('application/json').send(err.data);
+        return reply;
+      }
     })
 
     .patch('/statuses/:id', async (req, reply) => {
-      const { id } = req.params;
-      const { object } = req.body;
       try {
-        const status = await app.objection.models.taskStatus.query().findById(id);
-        await status.$query().patch(object);
-        req.flash('info', i18next.t('flash.statuses.update.success'));
-        reply.redirect(app.reverse('statuses'));
+        const toPatch = await app.objection.models.taskStatus.query().findById(req.params.id);
+        if (toPatch) {
+          await toPatch.$query().patch(req.body.object);
+          req.flash('info', i18next.t('flash.statuses.update.success'));
+          reply.redirect(app.reverse('statuses'));
+          return reply;
+        }
+        reply.code(404).type('text/plain').send('Not Found');
         return reply;
-      } catch ({ data }) {
-        req.flash('error', i18next.t('flash.statuses.update.error'));
-        reply.code(422).render('statuses/edit', { status: { id, ...object }, errors: data });
+      } catch (err) {
+        if (err instanceof ValidationError) {
+          req.flash('error', i18next.t('flash.statuses.update.error'));
+          reply.code(err.statusCode).render('statuses/edit', {
+            status: {
+              id: req.params.id,
+              ...req.body.object,
+            },
+            errors: err.data,
+          });
+          return reply;
+        }
+        reply.code(err.statusCode).type('application/json').send(err.data);
         return reply;
       }
     })
 
     .delete('/statuses/:id', async (req, reply) => {
-      await app.objection.models.taskStatus.query().deleteById(req.params.id);
-      req.flash('info', i18next.t('flash.statuses.delete.success'));
-      reply.code(204).redirect(302, app.reverse('statuses'));
-      return reply;
+      try {
+        const toDelete = await app.objection.models.taskStatus.query().findById(req.params.id);
+        if (toDelete) {
+          await toDelete.$query().delete();
+          req.flash('info', i18next.t('flash.statuses.delete.success'));
+          reply.code(204).redirect(302, app.reverse('statuses'));
+          return reply;
+        }
+        reply.code(404).type('text/plain').send('Not Found');
+        return reply;
+      } catch (err) {
+        reply.code(err.statusCode).type('application/json').send(err.data);
+        return reply;
+      }
     });
 };

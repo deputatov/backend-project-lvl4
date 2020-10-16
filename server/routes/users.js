@@ -34,6 +34,7 @@ export default (app) => {
       }
     })
 
+    // .get('/users/:id/edit', { preHandler: app.auth([app.verifyAuth, app.verifyUserCreator], { relation: 'and' }) }, async (req, reply) => {
     .get('/users/:id/edit', async (req, reply) => {
       if (!req.signedIn) {
         req.flash('error', i18next.t('flash.users.authorizationError'));

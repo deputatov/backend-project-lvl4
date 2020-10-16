@@ -2,6 +2,7 @@
 
 import path from 'path';
 import fastify from 'fastify';
+import fastifyAuth from 'fastify-auth';
 import fastifyStatic from 'fastify-static';
 import fastifyErrorPage from 'fastify-error-page';
 import pointOfView from 'point-of-view';
@@ -24,6 +25,7 @@ import addRoutes from './routes/index.js';
 import getHelpers from './helpers/index.js';
 import knexConfig from '../knexfile.js';
 import models from './models/index.js';
+import { verifyAuth, verifyUserCreator } from './lib/auth.js';
 
 dotenv.config();
 
@@ -105,6 +107,9 @@ const registerPlugins = (app) => {
     knexConfig: knexConfig[mode],
     models,
   });
+  app.register(fastifyAuth);
+  app.decorate('verifyAuth', verifyAuth);
+  app.decorate('verifyUserCreator', verifyUserCreator);
 };
 
 export default () => {

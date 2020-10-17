@@ -58,10 +58,14 @@ export default (app) => {
         reply.redirect(app.reverse('users'));
         return reply;
       } catch (err) {
-        req.flash('error', i18next.t('flash.users.update.error'));
-        reply
-          .code(err.statusCode)
-          .render('users/edit', { user: { id: req.params.id, ...req.body.object }, errors: err.data });
+        if (err instanceof ValidationError) {
+          req.flash('error', i18next.t('flash.users.update.error'));
+          reply
+            .code(err.statusCode)
+            .render('users/edit', { user: { id: req.params.id, ...req.body.object }, errors: err.data });
+          return reply;
+        }
+        reply.code(err.statusCode).type('application/json').send(err.data);
         return reply;
       }
     })

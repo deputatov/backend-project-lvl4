@@ -3,18 +3,18 @@ import { ValidationError } from 'objection';
 
 export default (app) => {
   app
-    .get('/statuses', { name: 'statuses' }, async (req, reply) => {
+    .get('/statuses', { name: 'statuses', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
       const statuses = await app.objection.models.taskStatus.query();
       reply.render('statuses/index', { statuses });
       return reply;
     })
 
-    .get('/statuses/new', { name: 'newStatus' }, async (req, reply) => {
+    .get('/statuses/new', { name: 'newStatus', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
       const status = {};
       reply.render('statuses/new', { status });
     })
 
-    .post('/statuses', async (req, reply) => {
+    .post('/statuses', { preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
       try {
         await app.objection.models.taskStatus.query().insert(req.body.object);
         req.flash('info', i18next.t('flash.statuses.create.success'));
@@ -31,7 +31,7 @@ export default (app) => {
       }
     })
 
-    .get('/statuses/:id/edit', async (req, reply) => {
+    .get('/statuses/:id/edit', { preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
       try {
         const toEdit = await app.objection.models.taskStatus.query().findById(req.params.id);
         if (toEdit) {
@@ -46,7 +46,7 @@ export default (app) => {
       }
     })
 
-    .patch('/statuses/:id', async (req, reply) => {
+    .patch('/statuses/:id', { preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
       try {
         const toPatch = await app.objection.models.taskStatus.query().findById(req.params.id);
         if (toPatch) {
@@ -74,7 +74,7 @@ export default (app) => {
       }
     })
 
-    .delete('/statuses/:id', async (req, reply) => {
+    .delete('/statuses/:id', { preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
       try {
         const toDelete = await app.objection.models.taskStatus.query().findById(req.params.id);
         if (toDelete) {

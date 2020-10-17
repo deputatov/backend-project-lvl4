@@ -108,11 +108,11 @@ const registerPlugins = (app) => {
     models,
   });
   app.register(fastifyAuth);
-  app.decorate('verifyAuth', verifyAuth);
-  app.decorate('verifyUserCreator', verifyUserCreator);
+  app.decorate('verifyAuth', verifyAuth(app));
+  app.decorate('verifyUserCreator', verifyUserCreator(app));
 };
 
-export default () => {
+export default async () => {
   const app = fastify({
     logger: {
       prettyPrint: isDevelopment,
@@ -126,7 +126,8 @@ export default () => {
   setupLocalization();
   setUpViews(app);
   setUpStaticAssets(app);
-  addRoutes(app);
+  // await addRoutes(app);
+  await app.register(addRoutes);
   addHooks(app);
 
   const rollbar = new Rollbar({

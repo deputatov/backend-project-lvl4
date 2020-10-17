@@ -16,4 +16,4 @@ const controllers = [
   tasks,
 ];
 
-export default (app) => controllers.forEach((f) => f(app));
+export default async (app) => controllers.forEach((f) => f(app));

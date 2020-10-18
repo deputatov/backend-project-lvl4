@@ -23,5 +23,5 @@ block content
           td=task.executors.fullName
           td=formatDate(task.createdAt)
           td
-            a(href=`/tasks/${task.id}/authorId/${task.authors.id}/edit`)=t('views.tasks.update.submit')
-            +buttonTo(`/tasks/${task.id}/authorId/${task.authors.id}`, 'delete')(class='btn btn-link', value=t('views.tasks.delete.submit'))
+            a(href=`/tasks/${task.id}/edit`)=t('views.tasks.update.submit')
+            +buttonTo(`/tasks/${task.id}`, 'delete')(class='btn btn-link', value=t('views.tasks.delete.submit'))

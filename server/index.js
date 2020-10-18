@@ -25,7 +25,7 @@ import addRoutes from './routes/index.js';
 import getHelpers from './helpers/index.js';
 import knexConfig from '../knexfile.js';
 import models from './models/index.js';
-import { verifyAuth, verifyUserCreator, verifyTaskCreator } from './lib/auth.js';
+import { verifyAuth, verifyUserCreator } from './lib/auth.js';
 
 dotenv.config();
 
@@ -110,7 +110,6 @@ const registerPlugins = (app) => {
   app.register(fastifyAuth);
   app.decorate('verifyAuth', verifyAuth(app));
   app.decorate('verifyUserCreator', verifyUserCreator(app));
-  app.decorate('verifyTaskCreator', verifyTaskCreator(app));
 };
 
 export default async () => {

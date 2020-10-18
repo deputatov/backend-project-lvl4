@@ -61,18 +61,16 @@ export default (app) => {
     })
 
     .post('/tasks', { preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
+      const selectedIds = castArray(req.body.object.labels || []);
       try {
-        const task = await app.objection.models.task.fromJson({
-          ...req.body.object,
-          authorId: req.currentUser.id,
-        });
         await app.objection.models.task.transaction(async (trx) => {
           await app.objection.models.task
             .query(trx)
             .allowGraph('labels')
             .insertGraph({
-              ...task,
-              labels: map(task.labels, (v) => ({ id: v })),
+              ...req.body.object,
+              authorId: req.currentUser.id,
+              labels: selectedIds.map((id) => ({ id })),
             }, { relate: true });
         });
         req.flash('info', i18next.t('flash.tasks.create.success'));
@@ -80,7 +78,6 @@ export default (app) => {
         return reply;
       } catch (err) {
         if (err instanceof ValidationError) {
-          const { labels: selectedIds } = req.body.object;
           const [
             statusId,
             executorId,
@@ -94,7 +91,7 @@ export default (app) => {
               .modify('getUsers', req.body.object.executorId),
             app.objection.models.label
               .query()
-              .modify('getLabels', selectedIds ? castArray(selectedIds) : []),
+              .modify('getLabels', selectedIds),
           ]);
           const task = {
             ...req.body.object,
@@ -111,137 +108,123 @@ export default (app) => {
       }
     })
 
-    .get(
-      '/tasks/:id/authorId/:authorId/edit',
-      { preHandler: app.auth([app.verifyAuth, app.verifyTaskCreator], { relation: 'and' }) },
-      async (req, reply) => {
-        try {
-          const toEdit = await app.objection.models.task
-            .query()
-            .findById(req.params.id)
-            .withGraphFetched('labels')
-            .modifyGraph('labels', (builder) => {
-              builder.select('labels.id');
-            });
-          if (toEdit) {
-            const [
-              statusId,
-              executorId,
-              labels,
-            ] = await Promise.all([
-              app.objection.models.taskStatus
-                .query()
-                .modify('getStatuses', toEdit.statusId),
-              app.objection.models.user
-                .query()
-                .modify('getUsers', toEdit.executorId),
-              app.objection.models.label
-                .query()
-                .modify('getLabels', map(toEdit.labels, 'id')),
-            ]);
-            const task = {
-              ...toEdit,
-              statusId,
-              executorId,
-              labels,
-            };
-            reply.render('tasks/edit', { task });
-            return reply;
-          }
-          reply.code(404).type('text/plain').send('Not Found');
-          return reply;
-        } catch (err) {
-          reply.code(err.statusCode).type('application/json').send(err.data);
+    .get('/tasks/:id/edit', { preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
+      try {
+        const toEdit = await app.objection.models.task
+          .query()
+          .findById(req.params.id)
+          .withGraphFetched('labels')
+          .modifyGraph('labels', (builder) => {
+            builder.select('labels.id');
+          });
+        if (toEdit) {
+          const [
+            statusId,
+            executorId,
+            labels,
+          ] = await Promise.all([
+            app.objection.models.taskStatus
+              .query()
+              .modify('getStatuses', toEdit.statusId),
+            app.objection.models.user
+              .query()
+              .modify('getUsers', toEdit.executorId),
+            app.objection.models.label
+              .query()
+              .modify('getLabels', map(toEdit.labels, 'id')),
+          ]);
+          const task = {
+            ...toEdit,
+            statusId,
+            executorId,
+            labels,
+          };
+          reply.render('tasks/edit', { task });
           return reply;
         }
-      },
-    )
+        reply.code(404).type('text/plain').send('Not Found');
+        return reply;
+      } catch (err) {
+        reply.code(err.statusCode).type('application/json').send(err.data);
+        return reply;
+      }
+    })
 
-    .patch(
-      '/tasks/:id/authorId/:authorId',
-      { preHandler: app.auth([app.verifyAuth, app.verifyTaskCreator], { relation: 'and' }) },
-      async (req, reply) => {
-        const { id, authorId } = req.params;
-        const { labels: selectedIds } = req.body.object;
-        try {
-          const toPatch = await app.objection.models.task.query().findById(req.params.id);
-          if (toPatch) {
-            const task = await app.objection.models.task.fromJson({
-              ...req.body.object,
-              authorId: req.currentUser.id,
-            });
-            await app.objection.models.task.transaction(async (trx) => {
-              await app.objection.models.task
-                .query(trx)
-                .upsertGraph({
-                  id: toPatch.id,
-                  ...task,
-                  labels: map(task.labels, (v) => ({ id: v })),
-                }, { relate: true }).debug();
-            });
-            req.flash('info', i18next.t('flash.task.update.success'));
-            reply.code(201).redirect(302, app.reverse('tasks'));
-            return reply;
-          }
-          reply.code(404).type('text/plain').send('Not Found');
-          return reply;
-        } catch (err) {
-          if (err instanceof ValidationError) {
-            const [
-              statusId,
-              executorId,
-              labels,
-            ] = await Promise.all([
-              app.objection.models.taskStatus
-                .query()
-                .modify('getStatuses', req.body.object.statusId),
-              app.objection.models.user
-                .query()
-                .modify('getUsers', req.body.object.executorId),
-              app.objection.models.label
-                .query()
-                .modify('getLabels', selectedIds ? castArray(selectedIds) : []),
-            ]);
-            const task = {
-              id,
-              authorId,
-              ...req.body.object,
-              statusId,
-              executorId,
-              labels,
-            };
-            reply.code(err.statusCode).render('tasks/edit', { task, errors: err.data });
-            return reply;
-          }
-          reply.code(err.statusCode).type('application/json').send(err.data);
+    .patch('/tasks/:id', { preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
+      const selectedIds = castArray(req.body.object.labels || []);
+      try {
+        const toPatch = await app.objection.models.task.query().findById(req.params.id);
+        if (toPatch) {
+          await app.objection.models.task.transaction(async (trx) => {
+            await app.objection.models.task
+              .query(trx)
+              .upsertGraph({
+                id: req.params.id,
+                authorId: req.currentUser.id,
+                ...req.body.object,
+                labels: selectedIds.map((id) => ({ id })),
+              }, { relate: true });
+          });
+          req.flash('info', i18next.t('flash.task.update.success'));
+          reply.code(201).redirect(302, app.reverse('tasks'));
           return reply;
         }
-      },
-    )
+        reply.code(404).type('text/plain').send('Not Found');
+        return reply;
+      } catch (err) {
+        if (err instanceof ValidationError) {
+          const [
+            statusId,
+            executorId,
+            labels,
+          ] = await Promise.all([
+            app.objection.models.taskStatus
+              .query()
+              .modify('getStatuses', req.body.object.statusId),
+            app.objection.models.user
+              .query()
+              .modify('getUsers', req.body.object.executorId),
+            app.objection.models.label
+              .query()
+              .modify('getLabels', selectedIds),
+          ]);
+          const task = {
+            id: req.params.id,
+            ...req.body.object,
+            statusId,
+            executorId,
+            labels,
+          };
+          reply.code(err.statusCode).render('tasks/edit', { task, errors: err.data });
+          return reply;
+        }
+        reply.code(err.statusCode).type('application/json').send(err.data);
+        return reply;
+      }
+    })
 
-    .delete(
-      '/tasks/:id/authorId/:authorId',
-      { preHandler: app.auth([app.verifyAuth, app.verifyTaskCreator], { relation: 'and' }) },
-      async (req, reply) => {
-        try {
-          const toDelete = await app.objection.models.task
-            .query()
-            .findById(req.params.id);
-          if (toDelete) {
-            await app.objection.models.task.transaction(async (trx) => {
-              await toDelete.$query(trx).delete();
-              await toDelete.$relatedQuery('labels', trx).unrelate();
-            });
-            req.flash('info', i18next.t('flash.tasks.delete.success'));
-            reply.code(204).redirect(302, app.reverse('tasks'));
+    .delete('/tasks/:id', { preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
+      try {
+        const toDelete = await app.objection.models.task.query().findById(req.params.id);
+        if (toDelete) {
+          if (toDelete.authorId !== req.currentUser.id) {
+            req.flash('error', i18next.t('flash.tasks.accessError'));
+            reply.code(403).redirect(302, app.reverse('tasks'));
             return reply;
           }
-          reply.code(404).type('text/plain').send('Not Found');
-          return reply;
-        } catch (err) {
-          reply.code(err.statusCode).type('application/json').send(err.data);
+          await app.objection.models.task.transaction(async (trx) => {
+            await toDelete.$query(trx).delete();
+            await toDelete.$relatedQuery('labels', trx).unrelate();
+          });
+          req.flash('info', i18next.t('flash.tasks.delete.success'));
+          reply.code(204).redirect(302, app.reverse('tasks'));
           return reply;
         }
-      },
-    );
+        reply.code(404).type('text/plain').send('Not Found');
+        return reply;
+      } catch (err) {
+        reply.code(err.statusCode).type('application/json').send(err.data);
+        return reply;
+      }
+    });
 };

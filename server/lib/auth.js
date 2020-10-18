@@ -19,7 +19,7 @@ export const verifyUserCreator = (app) => (req, reply, done) => {
 };
 
 export const verifyTaskCreator = (app) => (req, reply, done) => {
-  if (req.currentUser.id !== Number(req.body.authorId)) {
+  if (req.currentUser.id !== Number(req.params.authorId)) {
     req.flash('error', i18next.t('flash.tasks.accessError'));
     reply.code(403).redirect(302, app.reverse('tasks'));
     return done(new Error('Forbidden'));

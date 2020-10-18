@@ -112,7 +112,7 @@ export default (app) => {
     })
 
     .get(
-      '/tasks/:id/edit',
+      '/tasks/:id/authorId/:authorId/edit',
       { preHandler: app.auth([app.verifyAuth, app.verifyTaskCreator], { relation: 'and' }) },
       async (req, reply) => {
         try {
@@ -158,9 +158,11 @@ export default (app) => {
     )
 
     .patch(
-      '/tasks/:id',
+      '/tasks/:id/authorId/:authorId',
       { preHandler: app.auth([app.verifyAuth, app.verifyTaskCreator], { relation: 'and' }) },
       async (req, reply) => {
+        const { id, authorId } = req.params;
+        const { labels: selectedIds } = req.body.object;
         try {
           const toPatch = await app.objection.models.task.query().findById(req.params.id);
           if (toPatch) {
@@ -185,8 +187,6 @@ export default (app) => {
           return reply;
         } catch (err) {
           if (err instanceof ValidationError) {
-            const { id } = req.params;
-            const { labels: selectedIds } = req.body.object;
             const [
               statusId,
               executorId,
@@ -204,6 +204,7 @@ export default (app) => {
             ]);
             const task = {
               id,
+              authorId,
               ...req.body.object,
               statusId,
               executorId,
@@ -219,7 +220,7 @@ export default (app) => {
     )
 
     .delete(
-      '/tasks/:id',
+      '/tasks/:id/authorId/:authorId',
       { preHandler: app.auth([app.verifyAuth, app.verifyTaskCreator], { relation: 'and' }) },
       async (req, reply) => {
         try {

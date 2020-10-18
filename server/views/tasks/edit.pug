@@ -4,7 +4,7 @@ block header
   = t('views.tasks.update.title')
 
 block content
-  +formFor()(action=`/tasks/${task.id}` method='post')
+  +formFor()(action=`/tasks/${task.id}/authorId/${task.authorId}/` method='post')
     +input(task, 'name', errors)(type="text", autofocus)
     +textarea(task, 'description', 'Описание')(type="text")
     +select(task, 'statusId', 'Статус', errors)(type="number")

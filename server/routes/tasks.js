@@ -131,7 +131,7 @@ export default (app) => {
               .modify('getUsers', toEdit.executorId),
             app.objection.models.label
               .query()
-              .modify('getLabels', map(toEdit.labels, 'id')),
+              .modify('getLabels', toEdit.labels.map(({ id }) => id)),
           ]);
           const task = {
             ...toEdit,

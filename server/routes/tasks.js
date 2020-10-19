@@ -1,7 +1,7 @@
 /* eslint no-restricted-syntax: 0 */
 import i18next from 'i18next';
 import { ValidationError } from 'objection';
-import { castArray, map } from 'lodash';
+import { castArray } from 'lodash';
 
 export default (app) => {
   app

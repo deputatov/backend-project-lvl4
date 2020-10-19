@@ -42,7 +42,7 @@ export default (app) => {
       }
     })
 
-    .get('/tasks/:id', { preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
+    .get('/tasks/:id', { name: 'getTask', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
       try {
         const task = await app.objection.models.task
           .query()
@@ -60,7 +60,7 @@ export default (app) => {
       }
     })
 
-    .post('/tasks', { preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
+    .post('/tasks', { name: 'addTask', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
       const selectedIds = castArray(req.body.object.labels || []);
       try {
         await app.objection.models.task.transaction(async (trx) => {
@@ -108,7 +108,7 @@ export default (app) => {
       }
     })
 
-    .get('/tasks/:id/edit', { preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
+    .get('/tasks/:id/edit', { name: 'editTask', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
       try {
         const toEdit = await app.objection.models.task
           .query()
@@ -150,7 +150,7 @@ export default (app) => {
       }
     })
 
-    .patch('/tasks/:id', { preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
+    .patch('/tasks/:id', { name: 'patchTask', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
       const selectedIds = castArray(req.body.object.labels || []);
       try {
         const toPatch = await app.objection.models.task.query().findById(req.params.id);
@@ -203,7 +203,7 @@ export default (app) => {
       }
     })
 
-    .delete('/tasks/:id', { preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
+    .delete('/tasks/:id', { name: 'deleteTask', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
       try {
         const toDelete = await app.objection.models.task.query().findById(req.params.id);
         if (toDelete) {

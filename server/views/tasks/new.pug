@@ -9,5 +9,5 @@ block content
     +textarea(task, 'description', 'Описание')(type="text")
     +select(task, 'statusId', 'Статус', errors)(type="number")
     +select(task, 'executorId', 'Исполнитель', errors)(type="number")
-    +select(task, 'labels', 'Метки', errors)(multiple)
+    +select(task, 'labels', 'Метки', errors, false)(multiple)
     +submit(task)(value=t('views.tasks.new.submit'))

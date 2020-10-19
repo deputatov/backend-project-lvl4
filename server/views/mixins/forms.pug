@@ -25,7 +25,7 @@ mixin buttonTo(action, method)
     input(name="_method" type="hidden" value=method)
     input(type='submit')&attributes(attributes)
 
-mixin select(entity, propertyName, labelName, errors = [])
+mixin select(entity, propertyName, labelName, errors = [], dropdown = true)
   - error = _.get(errors, propertyName)
   .form-group(class=(errors[propertyName] && 'has-danger'))
     label=labelName
@@ -33,7 +33,8 @@ mixin select(entity, propertyName, labelName, errors = [])
       class=error ? 'form-control is-invalid' : 'form-control'
       name=getInputName(entity, propertyName)
      )&attributes(attributes)
-      option
+      if dropdown
+        option
       for elem in entity[propertyName]
         option(value=elem.id selected=elem.selected) #{elem.name || elem.fullName}
     if error

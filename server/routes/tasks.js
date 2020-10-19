@@ -163,7 +163,7 @@ export default (app) => {
                 authorId: req.currentUser.id,
                 ...req.body.object,
                 labels: selectedIds.map((id) => ({ id })),
-              }, { relate: true });
+              }, { relate: true, unrelate: true });
           });
           req.flash('info', i18next.t('flash.task.update.success'));
           reply.code(201).redirect(302, app.reverse('tasks'));

@@ -21,7 +21,7 @@ html(lang="en").h-100
             li.nav-item
               a.nav-link(href=route('labels'))= t('layouts.application.labels')
             li.nav-item
-              a.nav-link(href=route('tasks'))= t('layouts.application.tasks')
+              a.nav-link(href=route('tasks#index'))= t('layouts.application.tasks')
         ul.navbar-nav
           if reply.request.signedIn
             li.nav-item

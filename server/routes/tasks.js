@@ -1,11 +1,10 @@
-/* eslint no-restricted-syntax: 0 */
 import i18next from 'i18next';
 import { ValidationError } from 'objection';
 import { castArray } from 'lodash';
 
 export default (app) => {
   app
-    .get('/tasks', { name: 'tasks', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
+    .get('/tasks', { name: 'tasks#index', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
       try {
         const tasks = await app.objection.models.task
           .query()
@@ -18,7 +17,7 @@ export default (app) => {
       }
     })
 
-    .get('/tasks/new', { name: 'newTask', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
+    .get('/tasks/new', { name: 'tasks#new', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
       try {
         const [
           statusId,
@@ -42,25 +41,7 @@ export default (app) => {
       }
     })
 
-    .get('/tasks/:id', { name: 'getTask', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
-      try {
-        const task = await app.objection.models.task
-          .query()
-          .findById(req.params.id)
-          .withGraphJoined('[executors, authors, statuses, labels]');
-        if (task) {
-          reply.render('tasks/show', { task });
-          return reply;
-        }
-        reply.code(404).type('text/plain').send('Not Found');
-        return reply;
-      } catch (err) {
-        reply.code(err.statusCode).type('application/json').send(err.data);
-        return reply;
-      }
-    })
-
-    .post('/tasks', { name: 'addTask', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
+    .post('/tasks', { name: 'tasks#create', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
       const selectedIds = castArray(req.body.object.labels || []);
       try {
         await app.objection.models.task.transaction(async (trx) => {
@@ -74,7 +55,7 @@ export default (app) => {
             }, { relate: true });
         });
         req.flash('info', i18next.t('flash.tasks.create.success'));
-        reply.code(201).redirect(302, app.reverse('tasks'));
+        reply.code(201).redirect(302, app.reverse('tasks#index'));
         return reply;
       } catch (err) {
         if (err instanceof ValidationError) {
@@ -108,7 +89,25 @@ export default (app) => {
       }
     })
 
-    .get('/tasks/:id/edit', { name: 'editTask', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
+    .get('/tasks/:id', { name: 'tasks#show', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
+      try {
+        const task = await app.objection.models.task
+          .query()
+          .findById(req.params.id)
+          .withGraphJoined('[executors, authors, statuses, labels]');
+        if (task) {
+          reply.render('tasks/show', { task });
+          return reply;
+        }
+        reply.code(404).type('text/plain').send('Not Found');
+        return reply;
+      } catch (err) {
+        reply.code(err.statusCode).type('application/json').send(err.data);
+        return reply;
+      }
+    })
+
+    .get('/tasks/:id/edit', { name: 'tasks#edit', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
       try {
         const toEdit = await app.objection.models.task
           .query()
@@ -150,7 +149,7 @@ export default (app) => {
       }
     })
 
-    .patch('/tasks/:id', { name: 'patchTask', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
+    .patch('/tasks/:id', { name: 'tasks#update', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
       const selectedIds = castArray(req.body.object.labels || []);
       try {
         const toPatch = await app.objection.models.task.query().findById(req.params.id);
@@ -166,7 +165,7 @@ export default (app) => {
               }, { relate: true, unrelate: true });
           });
           req.flash('info', i18next.t('flash.task.update.success'));
-          reply.code(201).redirect(302, app.reverse('tasks'));
+          reply.code(201).redirect(302, app.reverse('tasks#index'));
           return reply;
         }
         reply.code(404).type('text/plain').send('Not Found');
@@ -203,13 +202,13 @@ export default (app) => {
       }
     })
 
-    .delete('/tasks/:id', { name: 'deleteTask', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
+    .delete('/tasks/:id', { name: 'tasks#destroy', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
       try {
         const toDelete = await app.objection.models.task.query().findById(req.params.id);
         if (toDelete) {
           if (toDelete.authorId !== req.currentUser.id) {
             req.flash('error', i18next.t('flash.tasks.accessError'));
-            reply.code(403).redirect(302, app.reverse('tasks'));
+            reply.code(403).redirect(302, app.reverse('tasks#index'));
             return reply;
           }
           await app.objection.models.task.transaction(async (trx) => {
@@ -217,7 +216,7 @@ export default (app) => {
             await toDelete.$relatedQuery('labels', trx).unrelate();
           });
           req.flash('info', i18next.t('flash.tasks.delete.success'));
-          reply.code(204).redirect(302, app.reverse('tasks'));
+          reply.code(204).redirect(302, app.reverse('tasks#index'));
           return reply;
         }
         reply.code(404).type('text/plain').send('Not Found');

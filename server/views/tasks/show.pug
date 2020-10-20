@@ -26,5 +26,5 @@ block content
               li #{label.name}
       .row.p-1
         .col
-          a(href=`/tasks/${task.id}/edit`)=t('views.tasks.update.submit')
-          +buttonTo(`/tasks/${task.id}`, 'delete')(class='btn btn-link', value=t('views.tasks.delete.submit'))
+          a(href=route('tasks#edit', { id: task.id }))=t('views.tasks.update.submit')
+          +buttonTo(route('tasks#destroy', { id: task.id }), 'delete')(class='btn btn-link', value=t('views.tasks.delete.submit'))

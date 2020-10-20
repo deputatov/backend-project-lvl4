@@ -4,7 +4,7 @@ block header
   = t('views.tasks.new.title')
 
 block content
-  +formFor()(action=route('tasks') method='post')
+  +formFor()(action=route('tasks#create') method='post')
     +input(task, 'name', errors)(type="text", autofocus)
     +textarea(task, 'description', 'Описание')(type="text")
     +select(task, 'statusId', 'Статус', errors)(type="number")

@@ -14,10 +14,10 @@ html(lang="en").h-100
       .collapse.navbar-collapse
         ul.navbar-nav.mr-auto
           li.nav-item
-            a.nav-link(href=route('users'))= t('layouts.application.users')
+            a.nav-link(href=route('users#index'))= t('layouts.application.users')
           if reply.request.signedIn
             li.nav-item
-              a.nav-link(href=route('statuses'))= t('layouts.application.statuses')
+              a.nav-link(href=route('statuses#index'))= t('layouts.application.statuses')
             li.nav-item
               a.nav-link(href=route('labels#index'))= t('layouts.application.labels')
             li.nav-item
@@ -30,7 +30,7 @@ html(lang="en").h-100
             li.nav-item
               a.nav-link(href=route('newSession'))= t('layouts.application.signIn')
             li.nav-item
-              a.nav-link(href=route('newUser'))= t('layouts.application.signUp')
+              a.nav-link(href=route('users#new'))= t('layouts.application.signUp')
     .container.h-100
 
       each messages, type in reply.flash() || []

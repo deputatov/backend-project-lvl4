@@ -3,22 +3,22 @@ import { ValidationError } from 'objection';
 
 export default (app) => {
   app
-    .get('/statuses', { name: 'statuses', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
+    .get('/statuses', { name: 'statuses#index', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
       const statuses = await app.objection.models.taskStatus.query();
       reply.render('statuses/index', { statuses });
       return reply;
     })
 
-    .get('/statuses/new', { name: 'newStatus', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
+    .get('/statuses/new', { name: 'statuses#new', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
       const status = {};
       reply.render('statuses/new', { status });
     })
 
-    .post('/statuses', { preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
+    .post('/statuses', { name: 'statuses#create', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
       try {
         await app.objection.models.taskStatus.query().insert(req.body.object);
         req.flash('info', i18next.t('flash.statuses.create.success'));
-        reply.code(201).redirect(302, app.reverse('statuses'));
+        reply.code(201).redirect(302, app.reverse('statuses#index'));
         return reply;
       } catch (err) {
         if (err instanceof ValidationError) {
@@ -31,7 +31,7 @@ export default (app) => {
       }
     })
 
-    .get('/statuses/:id/edit', { preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
+    .get('/statuses/:id/edit', { name: 'statuses#edit', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
       try {
         const toEdit = await app.objection.models.taskStatus.query().findById(req.params.id);
         if (toEdit) {
@@ -46,13 +46,13 @@ export default (app) => {
       }
     })
 
-    .patch('/statuses/:id', { preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
+    .patch('/statuses/:id', { name: 'statuses#update', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
       try {
         const toPatch = await app.objection.models.taskStatus.query().findById(req.params.id);
         if (toPatch) {
           await toPatch.$query().patch(req.body.object);
           req.flash('info', i18next.t('flash.statuses.update.success'));
-          reply.redirect(app.reverse('statuses'));
+          reply.redirect(app.reverse('statuses#index'));
           return reply;
         }
         reply.code(404).type('text/plain').send('Not Found');
@@ -74,13 +74,13 @@ export default (app) => {
       }
     })
 
-    .delete('/statuses/:id', { preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
+    .delete('/statuses/:id', { name: 'statuses#destroy', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
       try {
         const toDelete = await app.objection.models.taskStatus.query().findById(req.params.id);
         if (toDelete) {
           await toDelete.$query().delete();
           req.flash('info', i18next.t('flash.statuses.delete.success'));
-          reply.code(204).redirect(302, app.reverse('statuses'));
+          reply.code(204).redirect(302, app.reverse('statuses#index'));
           return reply;
         }
         reply.code(404).type('text/plain').send('Not Found');

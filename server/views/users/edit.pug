@@ -4,7 +4,7 @@ block header
   = t('views.users.update.title')
 
 block content
-  +formFor()(action=`/users/${user.id}` method='post')
+  +formFor()(action=route('users#update', { id: user.id }) method='post')
     +input(user, 'firstName', errors) 
     +input(user, 'lastName', errors)
     +input(user, 'email', errors)(type="email")

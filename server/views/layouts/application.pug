@@ -25,10 +25,10 @@ html(lang="en").h-100
         ul.navbar-nav
           if reply.request.signedIn
             li.nav-item
-              +buttonTo(route('session'), 'delete')(class="btn nav-link" value=t('layouts.application.signOut'))
+              +buttonTo(route('session#destroy'), 'delete')(class="btn nav-link" value=t('layouts.application.signOut'))
           else
             li.nav-item
-              a.nav-link(href=route('newSession'))= t('layouts.application.signIn')
+              a.nav-link(href=route('session#new'))= t('layouts.application.signIn')
             li.nav-item
               a.nav-link(href=route('users#new'))= t('layouts.application.signUp')
     .container.h-100

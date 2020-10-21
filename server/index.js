@@ -25,7 +25,11 @@ import addRoutes from './routes/index.js';
 import getHelpers from './helpers/index.js';
 import knexConfig from '../knexfile.js';
 import models from './models/index.js';
-import { verifyAuth, verifyUserCreator } from './lib/auth.js';
+import {
+  verifyAuth,
+  verifyUserCreator,
+  asyncVerifyTaskCreator,
+} from './lib/auth.js';
 
 dotenv.config();
 
@@ -108,9 +112,12 @@ const registerPlugins = (app) => {
     models,
   });
   app.register(fastifyAuth);
-  app.decorate('verifyAuth', verifyAuth(app));
-  app.decorate('verifyUserCreator', verifyUserCreator(app));
 };
+
+const addDecorators = (app) => app
+  .decorate('verifyAuth', verifyAuth(app))
+  .decorate('verifyUserCreator', verifyUserCreator(app))
+  .decorate('asyncVerifyTaskCreator', asyncVerifyTaskCreator(app));
 
 export default async () => {
   const app = fastify({
@@ -122,11 +129,11 @@ export default async () => {
   });
 
   registerPlugins(app);
-
   setupLocalization();
   setUpViews(app);
   setUpStaticAssets(app);
   // await addRoutes(app);
+  addDecorators(app);
   await app.register(addRoutes);
   addHooks(app);
 

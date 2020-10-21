@@ -17,3 +17,12 @@ export const verifyUserCreator = (app) => (req, reply, done) => {
   }
   return done();
 };
+
+export const asyncVerifyTaskCreator = (app) => async (req, reply) => {
+  const task = await app.objection.models.task.query().findById(req.params.id);
+  if (task && task.authorId !== req.currentUser.id) {
+    req.flash('error', i18next.t('flash.tasks.accessError'));
+    reply.code(403).redirect(302, app.reverse('tasks#index'));
+    throw new Error('Forbidden');
+  }
+};

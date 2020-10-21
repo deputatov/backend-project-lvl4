@@ -202,15 +202,10 @@ export default (app) => {
       }
     })
 
-    .delete('/tasks/:id', { name: 'tasks#destroy', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
+    .delete('/tasks/:id', { name: 'tasks#destroy', preHandler: app.auth([app.verifyAuth, app.asyncVerifyTaskCreator], { relation: 'and' }) }, async (req, reply) => {
       try {
         const toDelete = await app.objection.models.task.query().findById(req.params.id);
         if (toDelete) {
-          if (toDelete.authorId !== req.currentUser.id) {
-            req.flash('error', i18next.t('flash.tasks.accessError'));
-            reply.code(403).redirect(302, app.reverse('tasks#index'));
-            return reply;
-          }
           await app.objection.models.task.transaction(async (trx) => {
             await toDelete.$query(trx).delete();
             await toDelete.$relatedQuery('labels', trx).unrelate();

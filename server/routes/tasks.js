@@ -6,10 +6,48 @@ export default (app) => {
   app
     .get('/tasks', { name: 'tasks#index', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
       try {
-        const tasks = await app.objection.models.task
-          .query()
-          .withGraphJoined('[executors, authors, statuses]');
-        reply.render('tasks/index', { tasks });
+        const condition = Object
+          .entries(req.query)
+          .reduce((acc, [key, value]) => {
+            if (!value) {
+              return acc;
+            }
+            if (key === 'isCreatorUser' && value) {
+              return { ...acc, authorId: req.currentUser.id };
+            }
+            return { ...acc, [key]: value };
+          }, {});
+        const [
+          statusId,
+          executorId,
+          labelId,
+          tasks,
+        ] = await Promise.all([
+          app.objection.models.taskStatus
+            .query()
+            .modify('getStatuses', condition.statusId || ''),
+          app.objection.models.user
+            .query()
+            .modify('getUsers', condition.executorId || ''),
+          app.objection.models.label
+            .query()
+            .modify('getLabels', condition.labelId ? castArray(condition.labelId) : []),
+          app.objection.models.task
+            .query()
+            .withGraphJoined('[executors, authors, statuses, labels]')
+            .where(condition)
+            .orderBy('id', 'desc'),
+        ]);
+        reply.render('tasks/index', {
+          filters:
+          {
+            statusId,
+            executorId,
+            labelId,
+            isCreatorUser: condition.authorId && true,
+          },
+          tasks,
+        });
         return reply;
       } catch (err) {
         reply.code(err.statusCode).type('application/json').send(err.data);

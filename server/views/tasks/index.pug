@@ -3,7 +3,12 @@ extends ../layouts/application.pug
 block content
   a(class='nav-link' href=route('tasks#new'))= t('views.tasks.new.create')
   .jumbotron.p-2
-    +formFor()(form.inline)
+    +formFor()(action=route('tasks#index') method='get').form-inline
+      +selectFilter(filters, 'statusId', 'Статус').ml-2.mr-3
+      +selectFilter(filters, 'executorId', 'Исполнитель').ml-2.mr-3
+      +selectFilter(filters, 'labelId', 'Меткa').ml-2.mr-3
+      +checkbox(filters, 'isCreatorUser', 'Только мои задачи')
+      +submit()(value=t('views.tasks.filter.submit')).ml-3
   table.table.table-striped
     thead
       tr

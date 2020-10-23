@@ -40,6 +40,18 @@ mixin select(entity, propertyName, labelName, errors = [], dropdown = true)
     if error
       .form-control-feedback.invalid-feedback=error.map(({ message }) => message).join('. ')
 
+mixin selectFilter(entity, propertyName, labelName)
+  .form-group()
+    label=labelName
+    select(
+      name=propertyName
+      class='form-control'
+      )&attributes(attributes)
+      option
+      for elem in entity[propertyName]
+        option(value=elem.id selected=elem.selected) #{elem.name || elem.fullName}
+
+
 mixin textarea(entity, propertyName, labelName)
   .form-group
     label=labelName
@@ -48,3 +60,14 @@ mixin textarea(entity, propertyName, labelName)
       name=getInputName(entity, propertyName)
       rows=3
      )&attributes(attributes) #{_.get(entity, propertyName, '')}
+
+mixin checkbox(entity, propertyName, labelName)
+  .form-group.form-check
+    input(
+      name=propertyName
+      class='form-check-input'
+      type='checkbox'
+      checked=entity[propertyName]
+    )
+    label(class='form-check-label')=labelName
+

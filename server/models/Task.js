@@ -1,8 +1,7 @@
 import { Model, AjvValidator } from 'objection';
-// import BaseModel from './BaseModel.js';
+import path from 'path';
 
-// class Task extends BaseModel {
-class Task extends Model {
+export default class Task extends Model {
   static get tableName() {
     return 'tasks';
   }
@@ -41,13 +40,10 @@ class Task extends Model {
   }
 
   static get relationMappings() {
-    const TaskStatus = require('./TaskStatus');
-    const User = require('./User');
-    const Label = require('./Label');
     return {
       statuses: {
         relation: Model.BelongsToOneRelation,
-        modelClass: TaskStatus,
+        modelClass: path.join(__dirname, 'TaskStatus'),
         join: {
           from: 'tasks.status_id',
           to: 'statuses.id',
@@ -55,7 +51,7 @@ class Task extends Model {
       },
       authors: {
         relation: Model.BelongsToOneRelation,
-        modelClass: User,
+        modelClass: path.join(__dirname, 'User'),
         join: {
           from: 'tasks.author_id',
           to: 'users.id',
@@ -63,7 +59,7 @@ class Task extends Model {
       },
       executors: {
         relation: Model.BelongsToOneRelation,
-        modelClass: User,
+        modelClass: path.join(__dirname, 'User'),
         join: {
           from: 'tasks.executor_id',
           to: 'users.id',
@@ -71,7 +67,7 @@ class Task extends Model {
       },
       labels: {
         relation: Model.ManyToManyRelation,
-        modelClass: Label,
+        modelClass: path.join(__dirname, 'Label'),
         join: {
           from: 'tasks.id',
           through: {
@@ -84,5 +80,3 @@ class Task extends Model {
     };
   }
 }
-
-module.exports = Task;

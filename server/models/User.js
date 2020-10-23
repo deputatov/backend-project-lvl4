@@ -1,10 +1,11 @@
 import { Model, raw } from 'objection';
 import objectionUnique from 'objection-unique';
+import path from 'path';
 import encrypt from '../lib/secure.js';
 
 const unique = objectionUnique({ fields: ['email'] });
 
-class User extends unique(Model) {
+export default class User extends unique(Model) {
   static get tableName() {
     return 'users';
   }
@@ -36,11 +37,10 @@ class User extends unique(Model) {
   }
 
   static get relationMappings() {
-    const Task = require('./Task.js');
     return {
       owner: {
         relation: Model.HasManyRelation,
-        modelClass: Task,
+        modelClass: path.join(__dirname, 'Task'),
         join: {
           from: 'users.id',
           to: 'tasks.author_id',
@@ -48,7 +48,7 @@ class User extends unique(Model) {
       },
       executor: {
         relation: Model.HasManyRelation,
-        modelClass: Task,
+        modelClass: path.join(__dirname, 'Task'),
         join: {
           from: 'users.id',
           to: 'tasks.executor_id',
@@ -65,5 +65,3 @@ class User extends unique(Model) {
     };
   }
 }
-
-module.exports = User;

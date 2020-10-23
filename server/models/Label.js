@@ -1,9 +1,10 @@
 import { Model, raw } from 'objection';
 import objectionUnique from 'objection-unique';
+import path from 'path';
 
 const unique = objectionUnique({ fields: ['name'] });
 
-class Label extends unique(Model) {
+export default class Label extends unique(Model) {
   static get tableName() {
     return 'labels';
   }
@@ -20,11 +21,10 @@ class Label extends unique(Model) {
   }
 
   static get relationMappings() {
-    const Task = require('./Task');
     return {
       tasks: {
         relation: Model.ManyToManyRelation,
-        modelClass: Task,
+        modelClass: path.join(__dirname, 'Task'),
         join: {
           from: 'labels.id',
           through: {
@@ -53,5 +53,3 @@ class Label extends unique(Model) {
     };
   }
 }
-
-module.exports = Label;

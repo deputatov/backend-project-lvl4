@@ -31,7 +31,7 @@ exports.up = (knex) => {
         .onDelete('SET NULL')
         .index();
       table
-        .integer('author_id')
+        .integer('creator_id')
         .unsigned()
         .references('id')
         .inTable('users')

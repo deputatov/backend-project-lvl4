@@ -130,7 +130,27 @@ module.exports = {
         },
       },
       tasks: {
-
+        id: 'ID',
+        name: 'Наименование',
+        statuses: 'Статус',
+        creators: 'Автор',
+        executors: 'Исполнитель',
+        createdAt: 'Дата создания',
+        new: {
+          submit: 'Создать',
+          title: 'Создание задачи',
+          create: 'Создать задачу',
+        },
+        update: {
+          submit: 'Изменить',
+          title: 'Изменение задачи',
+        },
+        delete: {
+          submit: 'Удалить',
+        },
+        filter: {
+          submit: 'Показать',
+        },
       },
       welcome: {
         index: {

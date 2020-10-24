@@ -26,12 +26,12 @@ export default class Task extends Model {
   static get jsonSchema() {
     return {
       type: 'object',
-      required: ['name', 'statusId', 'authorId'],
+      required: ['name', 'statusId', 'creatorId'],
       properties: {
         id: { type: 'integer' },
         name: { type: 'string', minLength: 1, maxLength: 255 },
         description: { type: 'string' },
-        authorId: { type: 'integer', minimum: 1 },
+        creatorId: { type: 'integer', minimum: 1 },
         statusId: { type: 'integer', minimum: 1 },
         executorId: { type: 'integer' },
         labels: { type: 'array', items: { type: 'integer' }, default: [] },
@@ -49,11 +49,11 @@ export default class Task extends Model {
           to: 'statuses.id',
         },
       },
-      authors: {
+      creators: {
         relation: Model.BelongsToOneRelation,
         modelClass: path.join(__dirname, 'User'),
         join: {
-          from: 'tasks.author_id',
+          from: 'tasks.creator_id',
           to: 'users.id',
         },
       },

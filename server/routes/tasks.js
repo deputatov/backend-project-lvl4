@@ -13,7 +13,7 @@ export default (app) => {
               return acc;
             }
             if (key === 'isCreatorUser' && value) {
-              return { ...acc, authorId: req.currentUser.id };
+              return { ...acc, creatorId: req.currentUser.id };
             }
             return { ...acc, [key]: value };
           }, {});
@@ -34,7 +34,7 @@ export default (app) => {
             .modify('getLabels', condition.labelId ? castArray(condition.labelId) : []),
           app.objection.models.task
             .query()
-            .withGraphJoined('[executors, authors, statuses, labels]')
+            .withGraphJoined('[executors, creators, statuses, labels]')
             .where(condition)
             .orderBy('id', 'desc'),
         ]);
@@ -44,7 +44,7 @@ export default (app) => {
             statusId,
             executorId,
             labelId,
-            isCreatorUser: condition.authorId && true,
+            isCreatorUser: condition.creatorId && true,
           },
           tasks,
         });
@@ -88,7 +88,7 @@ export default (app) => {
             .allowGraph('labels')
             .insertGraph({
               ...req.body.object,
-              authorId: req.currentUser.id,
+              creatorId: req.currentUser.id,
               labels: selectedIds.map((id) => ({ id })),
             }, { relate: true });
         });
@@ -132,7 +132,7 @@ export default (app) => {
         const task = await app.objection.models.task
           .query()
           .findById(req.params.id)
-          .withGraphJoined('[executors, authors, statuses, labels]');
+          .withGraphJoined('[executors, creators, statuses, labels]');
         if (task) {
           reply.render('tasks/show', { task });
           return reply;
@@ -197,7 +197,7 @@ export default (app) => {
               .query(trx)
               .upsertGraph({
                 id: req.params.id,
-                authorId: req.currentUser.id,
+                creatorId: req.currentUser.id,
                 ...req.body.object,
                 labels: selectedIds.map((id) => ({ id })),
               }, { relate: true, unrelate: true });

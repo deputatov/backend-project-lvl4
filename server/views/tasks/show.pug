@@ -7,20 +7,20 @@ block content
     hr
     .container
       .row.p-1
-        .col Автор
+        .col #{t('views.tasks.creator')}
         .col  #{task.creators.fullName}
       .row.p-1
-        .col Исполнитeль
+        .col #{t('views.tasks.executor')}
         .col #{task.executors.fullName}
       .row.p-1
-        .col Статус
+        .col #{t('views.tasks.status')}
         .col #{task.statuses.name}
       .row.p-1
-        .col Дата создания
+        .col #{t('views.tasks.createdAt')}
         .col #{formatDate(task.createdAt)}
       .row.p-1
         .col
-          h6 Метки:
+          h6 #{t('views.tasks.labels')}:
           ul
             for label in task.labels
               li #{label.name}

@@ -56,7 +56,7 @@ module.exports = {
         },
       },
       tasks: {
-
+        accessError: 'Удалять задачи может только создатель',
       },
     },
     layouts: {
@@ -72,6 +72,8 @@ module.exports = {
     },
     views: {
       session: {
+        email: 'Email',
+        password: 'Пароль',
         new: {
           signIn: 'Вход',
           submit: 'Войти',
@@ -79,6 +81,8 @@ module.exports = {
       },
       users: {
         id: 'ID',
+        firstName: 'Имя',
+        lastName: 'Фимилия',
         fullName: 'Полное имя',
         email: 'Email',
         password: 'Пароль',
@@ -132,9 +136,13 @@ module.exports = {
       tasks: {
         id: 'ID',
         name: 'Наименование',
-        statuses: 'Статус',
-        creators: 'Автор',
-        executors: 'Исполнитель',
+        description: 'Описание',
+        status: 'Статус',
+        creator: 'Автор',
+        executor: 'Исполнитель',
+        label: 'Метка',
+        labels: 'Метки',
+        myTasks: 'Только мои задачи',
         createdAt: 'Дата создания',
         new: {
           submit: 'Создать',

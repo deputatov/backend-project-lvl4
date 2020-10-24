@@ -4,19 +4,19 @@ block content
   a(class='nav-link' href=route('tasks#new'))= t('views.tasks.new.create')
   .jumbotron.p-2
     +formFor()(action=route('tasks#index') method='get').form-inline
-      +selectFilter(filters, 'statusId', 'Статус').ml-2.mr-3
-      +selectFilter(filters, 'executorId', 'Исполнитель').ml-2.mr-3
-      +selectFilter(filters, 'labelId', 'Меткa').ml-2.mr-3
-      +checkbox(filters, 'isCreatorUser', 'Только мои задачи')
+      +selectFilter(filters, 'statusId', t('views.tasks.status')).ml-2.mr-3
+      +selectFilter(filters, 'executorId', t('views.tasks.executor')).ml-2.mr-3
+      +selectFilter(filters, 'labelId', t('views.tasks.label')).ml-2.mr-3
+      +checkbox(filters, 'isCreatorUser', t('views.tasks.myTasks'))
       +submit()(value=t('views.tasks.filter.submit')).ml-3
   table.table.table-striped
     thead
       tr
         th=t('views.tasks.id')
         th=t('views.tasks.name')
-        th=t('views.tasks.statuses')
-        th=t('views.tasks.creators')
-        th=t('views.tasks.executors')
+        th=t('views.tasks.status')
+        th=t('views.tasks.creator')
+        th=t('views.tasks.executor')
         th=t('views.tasks.createdAt')
         th
     tbody

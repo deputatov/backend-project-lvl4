@@ -53,6 +53,7 @@
       "@babel/core": "^7.10.5",
       "@babel/node": "^7.10.5",
       "@babel/preset-env": "^7.10.4",
+      "@jest/globals": "^26.6.1",
       "@types/node": "^14.0.23",
       "autoprefixer": "^9.8.6",
       "babel-eslint": "^10.1.0",

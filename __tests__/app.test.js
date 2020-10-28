@@ -1,12 +1,20 @@
 // @ts-check
-
+import {
+  describe,
+  beforeAll,
+  it,
+  expect,
+  afterAll,
+} from '@jest/globals';
+import faker from 'faker';
 import app from '../server/index.js';
+import encrypt from '../server/lib/secure.js';
 
 describe('requests', () => {
   let server;
 
-  beforeAll(() => {
-    server = app();
+  beforeAll(async () => {
+    server = await app();
   });
 
   it('GET 200', async () => {
@@ -25,7 +33,95 @@ describe('requests', () => {
     expect(res.statusCode).toBe(404);
   });
 
-  afterAll(() => {
-    server.close();
+  afterAll(async () => {
+    await server.close();
+  });
+});
+
+describe('basic functionality', () => {
+  let server;
+
+  beforeAll(async () => {
+    server = await app();
+    await server.objection.knex.migrate.latest();
+  });
+
+  const user = {
+    firstName: faker.name.firstName(),
+    lastName: faker.name.lastName(),
+    email: faker.internet.email(),
+    password: faker.internet.password(),
+  };
+
+  const updateUser = {
+    firstName: faker.name.firstName(),
+    lastName: faker.name.lastName(),
+    email: faker.internet.email(),
+    password: faker.internet.password(),
+  };
+
+  describe('CRUD users', () => {
+    it('users#index', async () => {
+      const res = await server.inject({
+        method: 'GET',
+        url: server.reverse('users#index'),
+      });
+      expect(res.statusCode).toBe(200);
+    });
+
+    it('users#new', async () => {
+      const res = await server.inject({
+        method: 'GET',
+        url: server.reverse('users#new'),
+      });
+      expect(res.statusCode).toBe(200);
+    });
+
+    it('users#create', async () => {
+      const res = await server.inject({
+        method: 'POST',
+        url: server.reverse('users#create'),
+        payload: { object: { ...user } },
+      });
+      const createdUser = await server.objection.models.user
+        .query()
+        .findOne({ email: user.email });
+      expect(res.statusCode).toBe(302);
+      expect(createdUser).toMatchObject({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        passwordDigest: encrypt(user.password),
+      });
+    });
+
+    it('users#edit', async () => {
+      const auth = await server.inject({
+        method: 'POST',
+        url: server.reverse('session#create'),
+        payload: { object: { email: user.email, password: user.password } },
+      });
+      const { headers } = auth;
+      const cookie = headers['set-cookie'];
+      const res = await server.inject({
+        method: 'GET',
+        url: server.reverse('users#edit', { id: 1 }),
+        cookie,
+      });
+      expect(res.statusCode).toBe(302);
+    });
+
+    it('users#update', async () => {
+      const res = await server.inject({
+        method: 'PATCH',
+        url: server.reverse('users#update', { id: 1 }),
+        payload: { object: { ...updateUser } },
+      });
+      // const updatedUser = await server.objection.models.user.query().findOne({ email: updateUser.email });
+      // console.log('user', user);
+      // console.log('update user', updateUser);
+      // console.log('updated user', updatedUser);
+      expect(res.statusCode).toBe(302);
+    });
   });
 });

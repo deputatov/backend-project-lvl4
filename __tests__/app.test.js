@@ -53,7 +53,7 @@ describe('basic functionality', () => {
     password: faker.internet.password(),
   };
 
-  const updateUser = {
+  const userUpdateData = {
     firstName: faker.name.firstName(),
     lastName: faker.name.lastName(),
     email: faker.internet.email(),
@@ -95,32 +95,55 @@ describe('basic functionality', () => {
       });
     });
 
-    it('users#edit', async () => {
+    let cookie;
+
+    it('session#create', async () => {
       const auth = await server.inject({
         method: 'POST',
         url: server.reverse('session#create'),
         payload: { object: { email: user.email, password: user.password } },
       });
       const { headers } = auth;
-      const cookie = headers['set-cookie'];
+      cookie = headers['set-cookie'];
+      expect(auth.statusCode).toBe(302);
+    });
+
+    it('users#edit', async () => {
       const res = await server.inject({
         method: 'GET',
         url: server.reverse('users#edit', { id: 1 }),
-        cookie,
+        headers: { cookie },
       });
-      expect(res.statusCode).toBe(302);
+      expect(res.statusCode).toBe(200);
     });
 
     it('users#update', async () => {
       const res = await server.inject({
         method: 'PATCH',
         url: server.reverse('users#update', { id: 1 }),
-        payload: { object: { ...updateUser } },
+        headers: { cookie },
+        payload: { object: { ...userUpdateData } },
       });
-      // const updatedUser = await server.objection.models.user.query().findOne({ email: updateUser.email });
-      // console.log('user', user);
-      // console.log('update user', updateUser);
-      // console.log('updated user', updatedUser);
+
+      const updatedUser = await server.objection.models.user
+        .query()
+        .findOne({ email: userUpdateData.email });
+
+      expect(res.statusCode).toBe(302);
+      expect(updatedUser).toMatchObject({
+        firstName: userUpdateData.firstName,
+        lastName: userUpdateData.lastName,
+        email: userUpdateData.email,
+        passwordDigest: encrypt(userUpdateData.password),
+      });
+    });
+
+    it('users#destroy', async () => {
+      const res = await server.inject({
+        method: 'DELETE',
+        url: server.reverse('users#destroy', { id: 1 }),
+        headers: { cookie },
+      });
       expect(res.statusCode).toBe(302);
     });
   });

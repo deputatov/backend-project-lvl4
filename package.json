@@ -1,6 +1,6 @@
 {
    "name": "task-manager",
-   "version": "0.1.0",
+   "version": "1.0.0",
    "description": "task-manager",
    "main": "",
    "scripts": {
@@ -12,16 +12,16 @@
       "start": "NODE_ENV=production node dist/server/bin/server.js",
       "develop": "npx nodemon --exec DEBUG=application:* npx babel-node server/bin/server.js"
    },
-   "author": "Stanislav Dzisiak",
+   "author": "Nikita Deputatov",
    "license": "ISC",
    "repository": {
       "type": "git",
-      "url": "git+https://github.com/hexlet-boilerplates/fastify-nodejs-application.git"
+      "url": "git+https://github.com/deputatov/backend-project-lvl4.git"
    },
    "bugs": {
       "url": "https://github.com/hexlet-boilerplates/fastify-nodejs-application/issues"
    },
-   "homepage": "https://github.com/hexlet-boilerplates/fastify-nodejs-application.git#readme",
+   "homepage": "https://github.com/deputatov/backend-project-lvl4.git#readme",
    "dependencies": {
       "bootstrap": "^4.5.0",
       "dotenv": "^8.2.0",

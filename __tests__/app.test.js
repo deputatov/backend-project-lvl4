@@ -591,7 +591,7 @@ describe('CRUD tasks', () => {
     ).toMatchObject(taskUpdateData);
   });
 
-  it('tasks#delete', async () => {
+  it('tasks#destroy', async () => {
     const res = await server.inject({
       method: 'DELETE',
       url: server.reverse('tasks#destroy', { id: 1 }),

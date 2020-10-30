@@ -60,6 +60,14 @@ const statusUpdateData = {
   name: faker.lorem.word(),
 };
 
+const label = {
+  name: faker.lorem.word(),
+};
+
+const labelUpdateData = {
+  name: faker.lorem.word(),
+};
+
 describe('CRUD users', () => {
   let server;
   let cookie;
@@ -169,6 +177,9 @@ describe('CRUD users', () => {
       headers: { cookie },
     });
     expect(res.statusCode).toBe(302);
+
+    const deletedUsers = await server.objection.models.user.query();
+    expect(deletedUsers).toEqual([]);
   });
 });
 
@@ -277,5 +288,119 @@ describe('CRUD statuses', () => {
       headers: { cookie },
     });
     expect(res.statusCode).toBe(302);
+
+    const deletedStatuses = await server.objection.models.taskStatus.query();
+    expect(deletedStatuses).toEqual([]);
+  });
+});
+
+describe('CRUD labels', () => {
+  let server;
+  let cookie;
+
+  beforeAll(async () => {
+    server = await app();
+    await server.objection.knex.migrate.latest();
+  });
+
+  afterAll(async () => {
+    await server.close();
+  });
+
+  it('users#create', async () => {
+    const res = await server.inject({
+      method: 'POST',
+      url: server.reverse('users#create'),
+      payload: { object: { ...user } },
+    });
+    expect(res.statusCode).toBe(302);
+  });
+
+  it('session#create', async () => {
+    const auth = await server.inject({
+      method: 'POST',
+      url: server.reverse('session#create'),
+      payload: { object: { email: user.email, password: user.password } },
+    });
+    const { headers } = auth;
+    cookie = headers['set-cookie'];
+    expect(auth.statusCode).toBe(302);
+  });
+
+  it('labels#index', async () => {
+    const res = await server.inject({
+      method: 'GET',
+      url: server.reverse('labels#index'),
+      headers: { cookie },
+    });
+    expect(res.statusCode).toBe(200);
+  });
+
+  it('labels#new', async () => {
+    const res = await server.inject({
+      method: 'GET',
+      url: server.reverse('labels#new'),
+      headers: { cookie },
+    });
+    expect(res.statusCode).toBe(200);
+  });
+
+  it('labels#create', async () => {
+    const res = await server.inject({
+      method: 'POST',
+      url: server.reverse('labels#create'),
+      headers: { cookie },
+      payload: { object: { ...label } },
+    });
+    expect(res.statusCode).toBe(302);
+
+    const createdStatus = await server.objection.models.label
+      .query()
+      .findOne({ name: label.name });
+    expect(createdStatus).toMatchObject(label);
+
+    const requiredFields = await server.inject({
+      method: 'POST',
+      url: server.reverse('labels#create'),
+      headers: { cookie },
+      payload: { object: { } },
+    });
+    expect(requiredFields.statusCode).toBe(400);
+  });
+
+  it('labels#edit', async () => {
+    const res = await server.inject({
+      method: 'GET',
+      url: server.reverse('labels#edit', { id: 1 }),
+      headers: { cookie },
+    });
+    expect(res.statusCode).toBe(200);
+  });
+
+  it('labels#update', async () => {
+    const res = await server.inject({
+      method: 'PATCH',
+      url: server.reverse('labels#update', { id: 1 }),
+      headers: { cookie },
+      payload: { object: { ...labelUpdateData } },
+    });
+    expect(res.statusCode).toBe(302);
+
+    const updatedLabel = await server.objection.models.label
+      .query()
+      .findOne({ name: labelUpdateData.name });
+    expect(updatedLabel).toMatchObject(labelUpdateData);
+  });
+
+  it('labels#destroy', async () => {
+    const res = await server.inject({
+      method: 'DELETE',
+      url: server.reverse('labels#update', { id: 1 }),
+      headers: { cookie },
+    });
+    expect(res.statusCode).toBe(302);
+
+    const deletedLabels = await server.objection.models.label.query();
+    expect(deletedLabels).toEqual([]);
   });
 });

@@ -59,8 +59,8 @@ export default class User extends unique(Model) {
 
   static get modifiers() {
     return {
-      getUsers(query, selectedId) {
-        query.select('*', raw('(case id when ? then "selected" end) as selected', selectedId));
+      getUsers(query, selectedIds) {
+        query.select('*', raw("(case id when ? then 'selected' end) as selected", selectedIds));
       },
     };
   }

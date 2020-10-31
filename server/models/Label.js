@@ -43,7 +43,7 @@ export default class Label extends unique(Model) {
         query.select('id', 'name', 't2.selected').leftJoin(
           Label
             .query()
-            .select('id as selected_id', raw('"selected" as selected'))
+            .select('id as selected_id', raw("'selected' as selected"))
             .whereIn('selected_id', selectedIds)
             .as('t2'),
           't2.selected_id',

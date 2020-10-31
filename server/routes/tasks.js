@@ -24,7 +24,7 @@ export default (app) => {
           tasks,
         ] = await Promise.all([
           app.objection.models.taskStatus
-            .query().select('*', raw("(case id when ? then 'selected' end) as selected", condition.statusId || '')),
+            .query().select('*', raw("(CASE WHEN ID = ? THEN 'selected' END) as 'selected'", condition.statusId || '')),
             // .modify('getStatuses', condition.statusId || ''),
           app.objection.models.user
             .query(),

@@ -39,14 +39,14 @@ export default (app) => {
         //     .orderBy('id', 'desc'),
         // ]);
         const statusId = await app.objection.models.taskStatus
-          .query()
-          .modify('getStatuses', condition.statusId || '');
+          .query();
+          // .modify('getStatuses', condition.statusId || '');
         const executorId = await app.objection.models.user
-          .query()
-          .modify('getUsers', condition.executorId || '');
+          .query();
+        //   .modify('getUsers', condition.executorId || '');
         const labelId = await app.objection.models.label
-          .query()
-          .modify('getLabels', condition.labelId ? castArray(condition.labelId) : []);
+          .query();
+        //   .modify('getLabels', condition.labelId ? castArray(condition.labelId) : []);
         const tasks = await app.objection.models.task
           .query()
           .withGraphJoined('[executors, creators, statuses, labels]')

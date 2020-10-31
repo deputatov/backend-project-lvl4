@@ -5,12 +5,12 @@ import encrypt from '../lib/secure.js';
 
 export default (app) => {
   app
-    .get('/session/new', { name: 'session#new' }, (req, reply) => {
+    .get('/sessions/new', { name: 'sessions#new' }, (req, reply) => {
       const signInForm = {};
       reply.render('session/new', { signInForm });
     })
 
-    .post('/session', { name: 'session#create' }, async (req, reply) => {
+    .post('/sessions', { name: 'sessions#create' }, async (req, reply) => {
       const signInForm = req.body.object;
       const user = await app.objection.models.user.query().findOne({ email: signInForm.email });
 
@@ -26,7 +26,7 @@ export default (app) => {
       return reply;
     })
 
-    .delete('/session', { name: 'session#destroy' }, (req, reply) => {
+    .delete('/sessions', { name: 'sessions#destroy' }, (req, reply) => {
       req.session.set('userId', null);
       req.flash('info', i18next.t('flash.session.delete.success'));
       reply.redirect(app.reverse('root'));

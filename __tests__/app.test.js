@@ -141,10 +141,10 @@ describe('CRUD users', () => {
     expect(requiredFields.statusCode).toBe(400);
   });
 
-  it('session#create', async () => {
+  it('sessions#create', async () => {
     const auth = await server.inject({
       method: 'POST',
-      url: server.reverse('session#create'),
+      url: server.reverse('sessions#create'),
       payload: { object: { email: user.email, password: user.password } },
     });
     const { headers } = auth;
@@ -223,10 +223,10 @@ describe('CRUD statuses', () => {
     expect(res.statusCode).toBe(302);
   });
 
-  it('session#create', async () => {
+  it('sessions#create', async () => {
     const auth = await server.inject({
       method: 'POST',
-      url: server.reverse('session#create'),
+      url: server.reverse('sessions#create'),
       payload: { object: { email: user.email, password: user.password } },
     });
     const { headers } = auth;
@@ -334,10 +334,10 @@ describe('CRUD labels', () => {
     expect(res.statusCode).toBe(302);
   });
 
-  it('session#create', async () => {
+  it('sessions#create', async () => {
     const auth = await server.inject({
       method: 'POST',
-      url: server.reverse('session#create'),
+      url: server.reverse('sessions#create'),
       payload: { object: { email: user.email, password: user.password } },
     });
     const { headers } = auth;
@@ -452,10 +452,10 @@ describe('CRUD tasks', () => {
     expect(user2.statusCode).toBe(302);
   });
 
-  it('session#create', async () => {
+  it('sessions#create', async () => {
     const auth = await server.inject({
       method: 'POST',
-      url: server.reverse('session#create'),
+      url: server.reverse('sessions#create'),
       payload: { object: { email: user.email, password: user.password } },
     });
     const { headers } = auth;

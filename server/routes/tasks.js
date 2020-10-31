@@ -1,5 +1,5 @@
 import i18next from 'i18next';
-import { ValidationError } from 'objection';
+import { ValidationError, raw } from 'objection';
 import { castArray } from 'lodash';
 
 export default (app) => {
@@ -39,11 +39,11 @@ export default (app) => {
         //     .orderBy('id', 'desc'),
         // ]);
         const statusId = await app.objection.models.taskStatus
-          .query();
+          .query().select('*', raw('(case id when ? then "selected" end) as selected', condition.statusId || ''));
           // .modify('getStatuses', condition.statusId || '');
         const executorId = await app.objection.models.user
-          .query()
-          .modify('getUsers', condition.executorId || '');
+          .query();
+          // .modify('getUsers', condition.executorId || '');
         const labelId = await app.objection.models.label
           .query();
         //   .modify('getLabels', condition.labelId ? castArray(condition.labelId) : []);

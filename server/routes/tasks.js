@@ -1,5 +1,5 @@
 import i18next from 'i18next';
-import { ValidationError } from 'objection';
+import { ValidationError, raw } from 'objection';
 import { castArray } from 'lodash';
 
 export default (app) => {
@@ -24,14 +24,14 @@ export default (app) => {
           tasks,
         ] = await Promise.all([
           app.objection.models.taskStatus
-            .query()
-            .modify('getStatuses', condition.statusId || ''),
+            .query().select('*', raw("(case id when ? then 'selected' end) as selected", condition.statusId || '')),
+            // .modify('getStatuses', condition.statusId || ''),
           app.objection.models.user
-            .query()
-            .modify('getUsers', condition.executorId || ''),
+            .query(),
+            // .modify('getUsers', condition.executorId || ''),
           app.objection.models.label
-            .query()
-            .modify('getLabels', condition.labelId ? castArray(condition.labelId) : []),
+            .query(),
+            // .modify('getLabels', condition.labelId ? castArray(condition.labelId) : []),
           app.objection.models.task
             .query()
             .withGraphJoined('[executors, creators, statuses, labels]')

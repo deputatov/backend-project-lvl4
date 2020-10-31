@@ -7,7 +7,22 @@ Project [backend-project-lvl4](https://ru.hexlet.io/professions/backend/projects
 
 Mentor [Roman Pushkov](https://ru.hexlet.io/u/aenglisc)
 
-[App](https://afternoon-sierra-44565.herokuapp.com/)
+Simple task manager.
+
+Functionality:
+
+* user registration
+* authentication
+* task management
+* filtering tasks
+
+Stack:
+
+* Server: Node + Fastify
+* ORM: Objection (with Knex)
+* DB: PostgreSQL (SQLite3 during dev/testing)
+
+[Live version](https://afternoon-sierra-44565.herokuapp.com/)
 
 ## Setup
 
@@ -19,5 +34,8 @@ $ make setup
 
 ```sh
 $ make start
-# Open localhost:5000
+```
+
+```sh
+Open localhost:5000
 ```

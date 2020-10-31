@@ -36,7 +36,7 @@ export default class TaskStatus extends unique(Model) {
   static get modifiers() {
     return {
       getStatuses(query, selectedIds) {
-        query.select('*', raw("(case id when ? then 'selected' end) as selected", selectedIds));
+        query.select('*', raw("(case id when ? then 'selected' else null end) as selected", selectedIds));
       },
     };
   }

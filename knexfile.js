@@ -22,16 +22,6 @@ module.exports = {
     connection: ':memory:',
     migrations,
   },
-  // production: {
-  //   client: 'pg',
-  //   connection: {
-  //     connectionString: process.env.DATABASE_URL,
-  //     ssl: {
-  //       rejectUnauthorized: false,
-  //     },
-  //   },
-  //   migrations,
-  // },
   production: {
     client: 'pg',
     connection: {

@@ -1,6 +1,20 @@
 import i18next from 'i18next';
-import { ValidationError, raw } from 'objection';
-import { castArray } from 'lodash';
+import { ValidationError } from 'objection';
+import { castArray, includes, assign } from 'lodash';
+
+const addPropertySelected = (collection, selectedIds) => {
+  if (!selectedIds) {
+    return collection;
+  }
+
+  if (Array.isArray(selectedIds)) {
+    const convertedIds = selectedIds.map(Number);
+    return collection.map((v) => (includes(convertedIds, v.id) ? assign(v, { selected: 'selected' }) : v));
+  }
+
+  const convertedId = Number(selectedIds);
+  return collection.map((v) => (convertedId === v.id ? assign(v, { selected: 'selected' }) : v));
+};
 
 export default (app) => {
   app
@@ -18,21 +32,14 @@ export default (app) => {
             return { ...acc, [key]: value };
           }, {});
         const [
-          statusId,
-          executorId,
-          labelId,
+          allStatuses,
+          allExecutors,
+          allLabels,
           tasks,
         ] = await Promise.all([
-          app.objection.models.taskStatus
-            .query()
-            // .modify('getStatuses').debug(),
-            .modify('getStatuses', condition.statusId || '').debug(),
-          app.objection.models.user
-            .query(),
-            // .modify('getUsers', condition.executorId || ''),
-          app.objection.models.label
-            .query(),
-            // .modify('getLabels', condition.labelId ? castArray(condition.labelId) : []),
+          app.objection.models.taskStatus.query(),
+          app.objection.models.user.query(),
+          app.objection.models.label.query(),
           app.objection.models.task
             .query()
             .withGraphJoined('[executors, creators, statuses, labels]')
@@ -42,9 +49,9 @@ export default (app) => {
         reply.render('tasks/index', {
           filters:
           {
-            statusId,
-            executorId,
-            labelId,
+            statusId: addPropertySelected(allStatuses, condition.statusId),
+            executorId: addPropertySelected(allExecutors, condition.executorId),
+            labelId: addPropertySelected(allLabels, condition.labelId),
             isCreatorUser: condition.creatorId && true,
           },
           tasks,
@@ -81,7 +88,11 @@ export default (app) => {
     })
 
     .post('/tasks', { name: 'tasks#create', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
-      const selectedIds = castArray(req.body.object.labels || []);
+      const {
+        statusId: selectedStatusId,
+        executorId: selectedExecutorId,
+        labels: selectedLabelsId,
+      } = req.body.object;
       try {
         await app.objection.models.task.transaction(async (trx) => {
           await app.objection.models.task
@@ -90,7 +101,7 @@ export default (app) => {
             .insertGraph({
               ...req.body.object,
               creatorId: req.currentUser.id,
-              labels: selectedIds.map((id) => ({ id })),
+              labels: castArray(selectedLabelsId || []).map((id) => ({ id })),
             }, { relate: true });
         });
         req.flash('info', i18next.t('flash.tasks.create.success'));
@@ -99,25 +110,19 @@ export default (app) => {
       } catch (err) {
         if (err instanceof ValidationError) {
           const [
-            statusId,
-            executorId,
-            labels,
+            allStatuses,
+            allExecutors,
+            AllLabels,
           ] = await Promise.all([
-            app.objection.models.taskStatus
-              .query()
-              .modify('getStatuses', req.body.object.statusId),
-            app.objection.models.user
-              .query()
-              .modify('getUsers', req.body.object.executorId),
-            app.objection.models.label
-              .query()
-              .modify('getLabels', selectedIds),
+            app.objection.models.taskStatus.query(),
+            app.objection.models.user.query(),
+            app.objection.models.label.query(),
           ]);
           const task = {
             ...req.body.object,
-            statusId,
-            executorId,
-            labels,
+            statusId: addPropertySelected(allStatuses, selectedStatusId),
+            executorId: addPropertySelected(allExecutors, selectedExecutorId),
+            labels: addPropertySelected(AllLabels, selectedLabelsId),
           };
           req.flash('error', i18next.t('flash.tasks.create.error'));
           reply.code(err.statusCode).render('tasks/new', { task, errors: err.data });
@@ -157,25 +162,19 @@ export default (app) => {
           });
         if (toEdit) {
           const [
-            statusId,
-            executorId,
-            labels,
+            allStatuses,
+            allExecutors,
+            allLabels,
           ] = await Promise.all([
-            app.objection.models.taskStatus
-              .query()
-              .modify('getStatuses', toEdit.statusId),
-            app.objection.models.user
-              .query()
-              .modify('getUsers', toEdit.executorId),
-            app.objection.models.label
-              .query()
-              .modify('getLabels', toEdit.labels.map(({ id }) => id)),
+            app.objection.models.taskStatus.query(),
+            app.objection.models.user.query(),
+            app.objection.models.label.query(),
           ]);
           const task = {
             ...toEdit,
-            statusId,
-            executorId,
-            labels,
+            statusId: addPropertySelected(allStatuses, toEdit.statusId),
+            executorId: addPropertySelected(allExecutors, toEdit.executorId),
+            labels: addPropertySelected(allLabels, toEdit.labels.map(({ id }) => id)),
           };
           reply.render('tasks/edit', { task });
           return reply;
@@ -189,7 +188,11 @@ export default (app) => {
     })
 
     .patch('/tasks/:id', { name: 'tasks#update', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
-      const selectedIds = castArray(req.body.object.labels || []);
+      const {
+        statusId: selectedStatusId,
+        executorId: selectedExecutorId,
+        labels: selectedLabelsId,
+      } = req.body.object;
       try {
         const toPatch = await app.objection.models.task.query().findById(req.params.id);
         if (toPatch) {
@@ -200,10 +203,10 @@ export default (app) => {
                 id: req.params.id,
                 creatorId: req.currentUser.id,
                 ...req.body.object,
-                labels: selectedIds.map((id) => ({ id })),
+                labels: castArray(selectedLabelsId || []).map((id) => ({ id })),
               }, { relate: true, unrelate: true });
           });
-          req.flash('info', i18next.t('flash.task.update.success'));
+          req.flash('info', i18next.t('flash.tasks.update.success'));
           reply.code(201).redirect(302, app.reverse('tasks#index'));
           return reply;
         }
@@ -212,26 +215,20 @@ export default (app) => {
       } catch (err) {
         if (err instanceof ValidationError) {
           const [
-            statusId,
-            executorId,
-            labels,
+            allStatuses,
+            allExecutors,
+            allLabels,
           ] = await Promise.all([
-            app.objection.models.taskStatus
-              .query()
-              .modify('getStatuses', req.body.object.statusId),
-            app.objection.models.user
-              .query()
-              .modify('getUsers', req.body.object.executorId),
-            app.objection.models.label
-              .query()
-              .modify('getLabels', selectedIds),
+            app.objection.models.taskStatus.query(),
+            app.objection.models.user.query(),
+            app.objection.models.label.query(),
           ]);
           const task = {
             id: req.params.id,
             ...req.body.object,
-            statusId,
-            executorId,
-            labels,
+            statusId: addPropertySelected(allStatuses, selectedStatusId),
+            executorId: addPropertySelected(allExecutors, selectedExecutorId),
+            labels: addPropertySelected(allLabels, selectedLabelsId),
           };
           reply.code(err.statusCode).render('tasks/edit', { task, errors: err.data });
           return reply;

@@ -2,22 +2,23 @@ extends ../layouts/application.pug
 
 block content
   .jumbotron.p-4
-    h2 #{task.name}
-    p #{task.description}
+    - const {id, name, description, creators, executors, statuses, createdAt}=task
+    h2 #{name}
+    p #{description}
     hr
     .container
       .row.p-1
         .col #{t('views.tasks.creator')}
-        .col  #{task.creators.fullName}
+        .col  #{creators.fullName}
       .row.p-1
         .col #{t('views.tasks.executor')}
-        .col #{task.executors.fullName}
+        .col #{executors.fullName}
       .row.p-1
         .col #{t('views.tasks.status')}
-        .col #{task.statuses.name}
+        .col #{statuses.name}
       .row.p-1
         .col #{t('views.tasks.createdAt')}
-        .col #{formatDate(task.createdAt)}
+        .col #{formatDate(createdAt)}
       .row.p-1
         .col
           h6 #{t('views.tasks.labels')}:
@@ -26,5 +27,5 @@ block content
               li #{label.name}
       .row.p-1
         .col
-          a(href=route('tasks#edit', { id: task.id }))=t('views.tasks.update.submit')
-          +buttonTo(route('tasks#destroy', { id: task.id }), 'delete')(class='btn btn-link', value=t('views.tasks.delete.submit'))
+          a(href=route('tasks#edit', { id }))=t('views.tasks.update.submit')
+          +buttonTo(route('tasks#destroy', { id }), 'delete')(class='btn btn-link', value=t('views.tasks.delete.submit'))

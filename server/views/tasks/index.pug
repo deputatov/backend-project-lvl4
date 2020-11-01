@@ -21,14 +21,15 @@ block content
         th
     tbody
       each task in tasks
+        - const {id, name, statuses, creators, executors, createdAt}=task
         tr
-          td=task.id
+          td #{id}
           td
-            a(href=route('tasks#show', { id: task.id }))=task.name
-          td=task.statuses.name
-          td=task.creators.fullName
-          td=task.executors.fullName
-          td=formatDate(task.createdAt)
+            a(href=route('tasks#show', { id })) #{name}
+          td #{statuses.name}
+          td #{creators.fullName}
+          td #{executors.fullName}
+          td #{formatDate(createdAt)}
           td
-            a(href=route('tasks#edit', { id: task.id }))=t('views.tasks.update.submit')
-            +buttonTo(route('tasks#destroy', { id: task.id }), 'delete')(class='btn btn-link', value=t('views.tasks.delete.submit'))
+            a(href=route('tasks#edit', { id }))=t('views.tasks.update.submit')
+            +buttonTo(route('tasks#destroy', { id }), 'delete')(class='btn btn-link', value=t('views.tasks.delete.submit'))

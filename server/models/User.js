@@ -17,7 +17,7 @@ export default class User extends unique(Model) {
   static get jsonSchema() {
     return {
       type: 'object',
-      required: ['email', 'password'],
+      required: ['email', 'password', 'firstName', 'lastName'],
       properties: {
         id: { type: 'integer' },
         firstName: { type: 'string', minLength: 1, maxLength: 255 },

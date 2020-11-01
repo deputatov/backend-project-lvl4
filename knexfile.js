@@ -22,10 +22,24 @@ module.exports = {
     connection: ':memory:',
     migrations,
   },
+  // production: {
+  //   client: 'pg',
+  //   connection: {
+  //     connectionString: process.env.DATABASE_URL,
+  //     ssl: {
+  //       rejectUnauthorized: false,
+  //     },
+  //   },
+  //   migrations,
+  // },
   production: {
     client: 'pg',
     connection: {
-      connectionString: process.env.DATABASE_URL,
+      database: process.env.DB_NAME,
+      host: process.env.DB_HOST,
+      port: process.env.DB_PORT,
+      password: process.env.DB_PASS,
+      user: process.env.DB_USER,
       ssl: {
         rejectUnauthorized: false,
       },

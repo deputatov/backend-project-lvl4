@@ -1,4 +1,4 @@
-import { Model, raw } from 'objection';
+import { Model } from 'objection';
 import objectionUnique from 'objection-unique';
 import path from 'path';
 

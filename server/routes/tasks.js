@@ -32,7 +32,7 @@ export default (app) => {
             return { ...acc, [key]: value };
           }, {});
         const [
-          allStatuses,
+          allTaskStatuses,
           allExecutors,
           allLabels,
           tasks,
@@ -42,14 +42,14 @@ export default (app) => {
           app.objection.models.label.query(),
           app.objection.models.task
             .query()
-            .withGraphJoined('[executors, creators, statuses, labels]')
+            .withGraphJoined('[executors, creators, taskStatuses, labels]')
             .where(condition)
             .orderBy('id', 'desc'),
         ]);
         reply.render('tasks/index', {
           filters:
           {
-            statusId: addPropertySelected(allStatuses, condition.statusId),
+            taskStatusId: addPropertySelected(allTaskStatuses, condition.taskStatusId),
             executorId: addPropertySelected(allExecutors, condition.executorId),
             labelId: addPropertySelected(allLabels, condition.labelId),
             isCreatorUser: condition.creatorId && true,
@@ -66,7 +66,7 @@ export default (app) => {
     .get('/tasks/new', { name: 'tasks#new', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
       try {
         const [
-          statusId,
+          taskStatusId,
           executorId,
           labels,
         ] = await Promise.all([
@@ -75,7 +75,7 @@ export default (app) => {
           app.objection.models.label.query(),
         ]);
         const task = {
-          statusId,
+          taskStatusId,
           executorId,
           labels,
         };
@@ -89,7 +89,7 @@ export default (app) => {
 
     .post('/tasks', { name: 'tasks#create', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
       const {
-        statusId: selectedStatusId,
+        taskStatusId: selectedTaskStatusId,
         executorId: selectedExecutorId,
         labels: selectedLabelsId,
       } = req.body.object;
@@ -110,9 +110,9 @@ export default (app) => {
       } catch (err) {
         if (err instanceof ValidationError) {
           const [
-            allStatuses,
+            allTaskStatuses,
             allExecutors,
-            AllLabels,
+            allLabels,
           ] = await Promise.all([
             app.objection.models.taskStatus.query(),
             app.objection.models.user.query(),
@@ -120,9 +120,9 @@ export default (app) => {
           ]);
           const task = {
             ...req.body.object,
-            statusId: addPropertySelected(allStatuses, selectedStatusId),
+            taskStatusId: addPropertySelected(allTaskStatuses, selectedTaskStatusId),
             executorId: addPropertySelected(allExecutors, selectedExecutorId),
-            labels: addPropertySelected(AllLabels, selectedLabelsId),
+            labels: addPropertySelected(allLabels, selectedLabelsId),
           };
           req.flash('error', i18next.t('flash.tasks.create.error'));
           reply.code(err.statusCode).render('tasks/new', { task, errors: err.data });
@@ -138,7 +138,7 @@ export default (app) => {
         const task = await app.objection.models.task
           .query()
           .findById(req.params.id)
-          .withGraphJoined('[executors, creators, statuses, labels]');
+          .withGraphJoined('[executors, creators, taskStatuses, labels]');
         if (task) {
           reply.render('tasks/show', { task });
           return reply;
@@ -162,7 +162,7 @@ export default (app) => {
           });
         if (toEdit) {
           const [
-            allStatuses,
+            allTaskStatuses,
             allExecutors,
             allLabels,
           ] = await Promise.all([
@@ -172,7 +172,7 @@ export default (app) => {
           ]);
           const task = {
             ...toEdit,
-            statusId: addPropertySelected(allStatuses, toEdit.statusId),
+            taskStatusId: addPropertySelected(allTaskStatuses, toEdit.taskStatusId),
             executorId: addPropertySelected(allExecutors, toEdit.executorId),
             labels: addPropertySelected(allLabels, toEdit.labels.map(({ id }) => id)),
           };
@@ -189,7 +189,7 @@ export default (app) => {
 
     .patch('/tasks/:id', { name: 'tasks#update', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
       const {
-        statusId: selectedStatusId,
+        taskStatusId: selectedTaskStatusId,
         executorId: selectedExecutorId,
         labels: selectedLabelsId,
       } = req.body.object;
@@ -215,7 +215,7 @@ export default (app) => {
       } catch (err) {
         if (err instanceof ValidationError) {
           const [
-            allStatuses,
+            allTaskStatuses,
             allExecutors,
             allLabels,
           ] = await Promise.all([
@@ -226,7 +226,7 @@ export default (app) => {
           const task = {
             id: req.params.id,
             ...req.body.object,
-            statusId: addPropertySelected(allStatuses, selectedStatusId),
+            taskStatusId: addPropertySelected(allTaskStatuses, selectedTaskStatusId),
             executorId: addPropertySelected(allExecutors, selectedExecutorId),
             labels: addPropertySelected(allLabels, selectedLabelsId),
           };

@@ -1,0 +1,20 @@
+extends ../layouts/application.pug
+
+block content
+  a(class='nav-link' href=route('taskStatuses#new'))= t('views.taskStatuses.new.create')
+  table.table.table-striped
+    thead
+      tr
+        th=t('views.taskStatuses.id')
+        th=t('views.taskStatuses.name')
+        th=t('views.taskStatuses.createdAt')
+        th
+    tbody
+      each taskStatus in taskStatuses
+        tr
+          td=taskStatus.id
+          td=taskStatus.name
+          td=formatDate(taskStatus.createdAt)
+          td
+            a(href=route('taskStatuses#edit', { id: taskStatus.id }))=t('views.taskStatuses.update.submit')
+            +buttonTo(route('taskStatuses#destroy', { id: taskStatus.id }), 'delete')(class='btn btn-link', value=t('views.taskStatuses.delete.submit'))

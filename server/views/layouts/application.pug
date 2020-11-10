@@ -17,7 +17,7 @@ html(lang="en").h-100
             a.nav-link(href=route('users#index'))= t('layouts.application.users')
           if reply.request.signedIn
             li.nav-item
-              a.nav-link(href=route('statuses#index'))= t('layouts.application.statuses')
+              a.nav-link(href=route('taskStatuses#index'))= t('layouts.application.taskStatuses')
             li.nav-item
               a.nav-link(href=route('labels#index'))= t('layouts.application.labels')
             li.nav-item

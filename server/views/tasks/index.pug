@@ -4,7 +4,7 @@ block content
   a(class='nav-link' href=route('tasks#new'))= t('views.tasks.new.create')
   .jumbotron.p-2
     +formFor()(action=route('tasks#index') method='get').form-inline
-      +selectFilter(filters, 'statusId', t('views.tasks.status')).ml-2.mr-3
+      +selectFilter(filters, 'taskStatusId', t('views.tasks.taskStatus')).ml-2.mr-3
       +selectFilter(filters, 'executorId', t('views.tasks.executor')).ml-2.mr-3
       +selectFilter(filters, 'labelId', t('views.tasks.label')).ml-2.mr-3
       +checkbox(filters, 'isCreatorUser', t('views.tasks.myTasks'))
@@ -14,19 +14,19 @@ block content
       tr
         th=t('views.tasks.id')
         th=t('views.tasks.name')
-        th=t('views.tasks.status')
+        th=t('views.tasks.taskStatus')
         th=t('views.tasks.creator')
         th=t('views.tasks.executor')
         th=t('views.tasks.createdAt')
         th
     tbody
       each task in tasks
-        - const {id, name, statuses, creators, executors, createdAt}=task
+        - const {id, name, taskStatuses, creators, executors, createdAt}=task
         tr
           td #{id}
           td
             a(href=route('tasks#show', { id })) #{name}
-          td #{statuses.name}
+          td #{taskStatuses.name}
           td #{creators.fullName}
           td #{executors.fullName}
           td #{formatDate(createdAt)}

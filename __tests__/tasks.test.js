@@ -22,11 +22,11 @@ const userUpdateData = {
   password: faker.internet.password(),
 };
 
-const status = {
+const taskStatus = {
   name: faker.lorem.word(),
 };
 
-const statusUpdateData = {
+const taskStatusUpdateData = {
   name: faker.lorem.word(),
 };
 
@@ -42,7 +42,7 @@ const task = {
   name: faker.lorem.word(),
   description: faker.lorem.word(),
   creatorId: 1,
-  statusId: 1,
+  taskStatusId: 1,
   executorId: 1,
   labels: [1, 2],
 };
@@ -51,7 +51,7 @@ const taskUpdateData = {
   name: faker.lorem.word(),
   description: faker.lorem.word(),
   creatorId: 1,
-  statusId: 2,
+  taskStatusId: 2,
   executorId: 2,
   labels: [1],
 };
@@ -96,22 +96,22 @@ describe('CRUD tasks', () => {
     expect(auth.statusCode).toBe(302);
   });
 
-  it('statuses#create', async () => {
-    const status1 = await server.inject({
+  it('taskStatuses#create', async () => {
+    const taskStatus1 = await server.inject({
       method: 'POST',
-      url: server.reverse('statuses#create'),
+      url: server.reverse('taskStatuses#create'),
       headers: { cookie },
-      payload: { object: { ...status } },
+      payload: { object: { ...taskStatus } },
     });
-    expect(status1.statusCode).toBe(302);
+    expect(taskStatus1.statusCode).toBe(302);
 
-    const status2 = await server.inject({
+    const taskStatus2 = await server.inject({
       method: 'POST',
-      url: server.reverse('statuses#create'),
+      url: server.reverse('taskStatuses#create'),
       headers: { cookie },
-      payload: { object: { ...statusUpdateData } },
+      payload: { object: { ...taskStatusUpdateData } },
     });
-    expect(status2.statusCode).toBe(302);
+    expect(taskStatus2.statusCode).toBe(302);
   });
 
   it('labels#create', async () => {

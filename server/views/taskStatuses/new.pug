@@ -1,0 +1,9 @@
+extends ../layouts/application.pug
+
+block header
+  = t('views.taskStatuses.new.title')
+
+block content
+  +formFor()(action=route('taskStatuses#create') method='post')
+    +input(taskStatus, 'name', t('views.taskStatuses.name'), errors)(type="text", autofocus)
+    +submit(taskStatus)(value=t('views.taskStatuses.new.submit'))

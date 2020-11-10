@@ -2,7 +2,7 @@ extends ../layouts/application.pug
 
 block content
   .jumbotron.p-4
-    - const {id, name, description, creators, executors, statuses, createdAt}=task
+    - const {id, name, description, creators, executors, taskStatuses, createdAt}=task
     h2 #{name}
     p #{description}
     hr
@@ -14,8 +14,8 @@ block content
         .col #{t('views.tasks.executor')}
         .col #{executors.fullName}
       .row.p-1
-        .col #{t('views.tasks.status')}
-        .col #{statuses.name}
+        .col #{t('views.tasks.taskStatus')}
+        .col #{taskStatuses.name}
       .row.p-1
         .col #{t('views.tasks.createdAt')}
         .col #{formatDate(createdAt)}

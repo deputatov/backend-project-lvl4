@@ -3,7 +3,7 @@
 import welcome from './welcome';
 import users from './users';
 import session from './session';
-import statuses from './statuses.js';
+import taskStatuses from './taskStatuses.js';
 import labels from './labels.js';
 import tasks from './tasks.js';
 
@@ -11,7 +11,7 @@ const controllers = [
   welcome,
   users,
   session,
-  statuses,
+  taskStatuses,
   labels,
   tasks,
 ];

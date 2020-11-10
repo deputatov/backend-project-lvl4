@@ -9,7 +9,7 @@ exports.up = (knex) => {
       table.timestamp('created_at').defaultTo(knex.fn.now());
       table.timestamp('updated_at').defaultTo(knex.fn.now());
     })
-    .createTable('statuses', (table) => {
+    .createTable('task_statuses', (table) => {
       table.increments('id').primary();
       table.string('name');
       table.timestamp('created_at').defaultTo(knex.fn.now());
@@ -24,10 +24,10 @@ exports.up = (knex) => {
     .createTable('tasks', (table) => {
       table.increments('id').primary();
       table
-        .integer('status_id')
+        .integer('task_status_id')
         .unsigned()
         .references('id')
-        .inTable('statuses')
+        .inTable('task_statuses')
         .onDelete('SET NULL')
         .index();
       table
@@ -71,7 +71,7 @@ exports.up = (knex) => {
 exports.down = (knex) => {
   return knex.schema
     .dropTableIfExists('users')
-    .dropTableIfExists('statuses')
+    .dropTableIfExists('task_statuses')
     .dropTableIfExists('labels')
     .dropTableIfExists('tasks')
     .dropTableIfExists('tasks_labels')

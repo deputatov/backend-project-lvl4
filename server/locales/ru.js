@@ -27,7 +27,7 @@ module.exports = {
         authorizationError: 'Доступ запрещён! Пожалуйста, авторизируйтесь',
         accessError: 'Вы не можете редактировать или удалять другого пользователя',
       },
-      statuses: {
+      taskStatuses: {
         create: {
           error: 'Не удалось создать статус',
           success: 'Статус успешно создан',
@@ -74,7 +74,7 @@ module.exports = {
     layouts: {
       application: {
         users: 'Пользователи',
-        statuses: 'Статусы',
+        taskStatuses: 'Статусы',
         labels: 'Метки',
         tasks: 'Задачи',
         signIn: 'Вход',
@@ -111,7 +111,7 @@ module.exports = {
           submit: 'Удалить',
         },
       },
-      statuses: {
+      taskStatuses: {
         id: 'ID',
         name: 'Наименование',
         createdAt: 'Дата создания',
@@ -149,7 +149,7 @@ module.exports = {
         id: 'ID',
         name: 'Наименование',
         description: 'Описание',
-        status: 'Статус',
+        taskStatus: 'Статус',
         creator: 'Автор',
         executor: 'Исполнитель',
         label: 'Метка',

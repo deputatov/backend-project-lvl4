@@ -83,10 +83,10 @@ describe('CRUD labels', () => {
     });
     expect(res.statusCode).toBe(302);
 
-    const createdStatus = await server.objection.models.label
+    const createdLabel = await server.objection.models.label
       .query()
       .findOne({ name: label.name });
-    expect(createdStatus).toMatchObject(label);
+    expect(createdLabel).toMatchObject(label);
 
     const requiredFields = await server.inject({
       method: 'POST',

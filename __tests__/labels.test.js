@@ -95,6 +95,13 @@ describe('CRUD labels', () => {
       payload: { object: { } },
     });
     expect(requiredFields.statusCode).toBe(400);
+
+    const serverError = await server.inject({
+      method: 'POST',
+      url: server.reverse('labels#create'),
+      headers: { cookie },
+    });
+    expect(serverError.statusCode).toBe(500);
   });
 
   it('labels#edit', async () => {
@@ -104,6 +111,13 @@ describe('CRUD labels', () => {
       headers: { cookie },
     });
     expect(res.statusCode).toBe(200);
+
+    const notFound = await server.inject({
+      method: 'GET',
+      url: server.reverse('labels#edit', { id: 2 }),
+      headers: { cookie },
+    });
+    expect(notFound.statusCode).toBe(404);
   });
 
   it('labels#update', async () => {
@@ -119,15 +133,29 @@ describe('CRUD labels', () => {
       .query()
       .findOne({ name: labelUpdateData.name });
     expect(updatedLabel).toMatchObject(labelUpdateData);
+
+    const serverError = await server.inject({
+      method: 'PATCH',
+      url: server.reverse('labels#update', { id: 1 }),
+      headers: { cookie },
+    });
+    expect(serverError.statusCode).toBe(500);
   });
 
   it('labels#destroy', async () => {
     const res = await server.inject({
       method: 'DELETE',
-      url: server.reverse('labels#update', { id: 1 }),
+      url: server.reverse('labels#destroy', { id: 1 }),
       headers: { cookie },
     });
     expect(res.statusCode).toBe(302);
+
+    const notFound = await server.inject({
+      method: 'DELETE',
+      url: server.reverse('labels#destroy', { id: 2 }),
+      headers: { cookie },
+    });
+    expect(notFound.statusCode).toBe(404);
 
     const deletedLabels = await server.objection.models.label.query();
     expect(deletedLabels).toEqual([]);

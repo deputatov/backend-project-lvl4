@@ -180,6 +180,13 @@ describe('CRUD tasks', () => {
       payload: { object: { ...task, name: '' } },
     });
     expect(requiredFields.statusCode).toBe(400);
+
+    const serverError = await server.inject({
+      method: 'POST',
+      url: server.reverse('tasks#create'),
+      headers: { cookie },
+    });
+    expect(serverError.statusCode).toBe(500);
   });
 
   it('tasks#show', async () => {
@@ -189,6 +196,13 @@ describe('CRUD tasks', () => {
       headers: { cookie },
     });
     expect(res.statusCode).toBe(200);
+
+    const notFound = await server.inject({
+      method: 'GET',
+      url: server.reverse('tasks#show', { id: 2 }),
+      headers: { cookie },
+    });
+    expect(notFound.statusCode).toBe(404);
   });
 
   it('tasks#edit', async () => {
@@ -198,6 +212,13 @@ describe('CRUD tasks', () => {
       headers: { cookie },
     });
     expect(res.statusCode).toBe(200);
+
+    const notFound = await server.inject({
+      method: 'GET',
+      url: server.reverse('tasks#edit', { id: 2 }),
+      headers: { cookie },
+    });
+    expect(notFound.statusCode).toBe(404);
   });
 
   it('tasks#update', async () => {
@@ -222,6 +243,21 @@ describe('CRUD tasks', () => {
         labels: updatedTask.labels.map(({ id }) => id),
       },
     ).toMatchObject(taskUpdateData);
+
+    const notFound = await server.inject({
+      method: 'PATCH',
+      url: server.reverse('tasks#update', { id: 2 }),
+      headers: { cookie },
+      payload: { object: { ...taskUpdateData } },
+    });
+    expect(notFound.statusCode).toBe(404);
+
+    const serverError = await server.inject({
+      method: 'PATCH',
+      url: server.reverse('tasks#update', { id: 1 }),
+      headers: { cookie },
+    });
+    expect(serverError.statusCode).toBe(500);
   });
 
   it('tasks#destroy', async () => {
@@ -234,5 +270,12 @@ describe('CRUD tasks', () => {
 
     const deletedTask = await server.objection.models.task.query();
     expect(deletedTask).toEqual([]);
+
+    const notFound = await server.inject({
+      method: 'DELETE',
+      url: server.reverse('tasks#destroy', { id: 1 }),
+      headers: { cookie },
+    });
+    expect(notFound.statusCode).toEqual(404);
   });
 });

@@ -19,7 +19,7 @@
       "url": "git+https://github.com/deputatov/backend-project-lvl4.git"
    },
    "bugs": {
-      "url": "https://github.com/hexlet-boilerplates/fastify-nodejs-application/issues"
+      "url": "https://github.com/deputatov/backend-project-lvl4/issues"
    },
    "homepage": "https://github.com/deputatov/backend-project-lvl4.git#readme",
    "dependencies": {

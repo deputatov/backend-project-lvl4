@@ -32,7 +32,7 @@ export default (app) => {
             .render('users/new', { user: req.body.object, errors: err.data });
           return reply;
         }
-        reply.code(err.statusCode).type('application/json').send(err.data);
+        reply.send(err);
         return reply;
       }
     })
@@ -65,7 +65,7 @@ export default (app) => {
             .render('users/edit', { user: { id: req.params.id, ...req.body.object }, errors: err.data });
           return reply;
         }
-        reply.code(err.statusCode).type('application/json').send(err.data);
+        reply.send(err);
         return reply;
       }
     })
@@ -78,7 +78,7 @@ export default (app) => {
         reply.code(204).redirect(302, app.reverse('users#index'));
         return reply;
       } catch (err) {
-        reply.code(err.statusCode).type('application/json').send(err.data);
+        reply.send(err);
         return reply;
       }
     });

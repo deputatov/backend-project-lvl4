@@ -95,6 +95,13 @@ describe('CRUD task statuses', () => {
       payload: { object: { } },
     });
     expect(requiredFields.statusCode).toBe(400);
+
+    const serverError = await server.inject({
+      method: 'POST',
+      url: server.reverse('taskStatuses#create'),
+      headers: { cookie },
+    });
+    expect(serverError.statusCode).toBe(500);
   });
 
   it('taskStatuses#edit', async () => {
@@ -119,15 +126,29 @@ describe('CRUD task statuses', () => {
       .query()
       .findOne({ name: taskStatusUpdateData.name });
     expect(updatedTaskStatus).toMatchObject(taskStatusUpdateData);
+
+    const serverError = await server.inject({
+      method: 'PATCH',
+      url: server.reverse('taskStatuses#update', { id: 1 }),
+      headers: { cookie },
+    });
+    expect(serverError.statusCode).toBe(500);
   });
 
   it('taskStatuses#destroy', async () => {
     const res = await server.inject({
       method: 'DELETE',
-      url: server.reverse('taskStatuses#update', { id: 1 }),
+      url: server.reverse('taskStatuses#destroy', { id: 1 }),
       headers: { cookie },
     });
     expect(res.statusCode).toBe(302);
+
+    const notFound = await server.inject({
+      method: 'DELETE',
+      url: server.reverse('taskStatuses#destroy', { id: 1 }),
+      headers: { cookie },
+    });
+    expect(notFound.statusCode).toBe(404);
 
     const deletedTaskStatuses = await server.objection.models.taskStatus.query();
     expect(deletedTaskStatuses).toEqual([]);

@@ -45,7 +45,7 @@ export default (app) => {
         reply.render('users/edit', { user: { ...toEdit } });
         return reply;
       } catch (err) {
-        reply.code(err.statusCode).type('application/json').send(err.data);
+        reply.send(err);
         return reply;
       }
     })

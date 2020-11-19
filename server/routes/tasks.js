@@ -2,18 +2,17 @@ import i18next from 'i18next';
 import { ValidationError } from 'objection';
 import _ from 'lodash';
 
-const addPropertySelected = (collection, selectedIds) => {
-  if (!selectedIds) {
-    return collection;
-  }
+const normalizeData = (collection, ids) => {
+  const selectedIds = new Set(_.castArray(ids).map(Number));
 
-  if (Array.isArray(selectedIds)) {
-    const convertedIds = selectedIds.map(Number);
-    return collection.map((v) => (_.includes(convertedIds, v.id) ? _.assign(v, { selected: 'selected' }) : v));
-  }
+  const normalized = collection.map((item) => {
+    if (!selectedIds.has(item.id)) {
+      return item;
+    }
+    return _.assign(item, { selected: 'selected' });
+  });
 
-  const convertedId = Number(selectedIds);
-  return collection.map((v) => (convertedId === v.id ? _.assign(v, { selected: 'selected' }) : v));
+  return normalized;
 };
 
 export default (app) => {
@@ -41,9 +40,9 @@ export default (app) => {
         reply.render('tasks/index', {
           filters:
           {
-            taskStatusId: addPropertySelected(allTaskStatuses, filterCondition.taskStatusId),
-            executorId: addPropertySelected(allExecutors, filterCondition.executorId),
-            labelId: addPropertySelected(allLabels, filterCondition.labelId),
+            taskStatusId: normalizeData(allTaskStatuses, filterCondition.taskStatusId),
+            executorId: normalizeData(allExecutors, filterCondition.executorId),
+            labelId: normalizeData(allLabels, filterCondition.labelId),
             isCreatorUser: filterCondition.isCreatorUser,
           },
           tasks,
@@ -112,9 +111,9 @@ export default (app) => {
           ]);
           const task = {
             ...req.body.object,
-            taskStatusId: addPropertySelected(allTaskStatuses, selectedTaskStatusId),
-            executorId: addPropertySelected(allExecutors, selectedExecutorId),
-            labels: addPropertySelected(allLabels, selectedLabelsId),
+            taskStatusId: normalizeData(allTaskStatuses, selectedTaskStatusId),
+            executorId: normalizeData(allExecutors, selectedExecutorId),
+            labels: normalizeData(allLabels, selectedLabelsId),
           };
           req.flash('error', i18next.t('flash.tasks.create.error'));
           reply.code(err.statusCode).render('tasks/new', { task, errors: err.data });
@@ -167,9 +166,9 @@ export default (app) => {
         ]);
         const task = {
           ...toEdit,
-          taskStatusId: addPropertySelected(allTaskStatuses, toEdit.taskStatusId),
-          executorId: addPropertySelected(allExecutors, toEdit.executorId),
-          labels: addPropertySelected(allLabels, toEdit.labels.map(({ id }) => id)),
+          taskStatusId: normalizeData(allTaskStatuses, toEdit.taskStatusId),
+          executorId: normalizeData(allExecutors, toEdit.executorId),
+          labels: normalizeData(allLabels, toEdit.labels.map(({ id }) => id)),
         };
         reply.render('tasks/edit', { task });
         return reply;
@@ -218,9 +217,9 @@ export default (app) => {
           const task = {
             id: req.params.id,
             ...req.body.object,
-            taskStatusId: addPropertySelected(allTaskStatuses, selectedTaskStatusId),
-            executorId: addPropertySelected(allExecutors, selectedExecutorId),
-            labels: addPropertySelected(allLabels, selectedLabelsId),
+            taskStatusId: normalizeData(allTaskStatuses, selectedTaskStatusId),
+            executorId: normalizeData(allExecutors, selectedExecutorId),
+            labels: normalizeData(allLabels, selectedLabelsId),
           };
           reply.code(err.statusCode).render('tasks/edit', { task, errors: err.data });
           return reply;

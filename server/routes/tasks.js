@@ -1,10 +1,6 @@
 import i18next from 'i18next';
 import { ValidationError } from 'objection';
-import _, {
-  castArray,
-  includes,
-  assign,
-} from 'lodash';
+import _ from 'lodash';
 
 const addPropertySelected = (collection, selectedIds) => {
   if (!selectedIds) {
@@ -13,11 +9,11 @@ const addPropertySelected = (collection, selectedIds) => {
 
   if (Array.isArray(selectedIds)) {
     const convertedIds = selectedIds.map(Number);
-    return collection.map((v) => (includes(convertedIds, v.id) ? assign(v, { selected: 'selected' }) : v));
+    return collection.map((v) => (_.includes(convertedIds, v.id) ? _.assign(v, { selected: 'selected' }) : v));
   }
 
   const convertedId = Number(selectedIds);
-  return collection.map((v) => (convertedId === v.id ? assign(v, { selected: 'selected' }) : v));
+  return collection.map((v) => (convertedId === v.id ? _.assign(v, { selected: 'selected' }) : v));
 };
 
 export default (app) => {
@@ -97,7 +93,7 @@ export default (app) => {
             .insertGraph({
               ...req.body.object,
               creatorId: req.currentUser.id,
-              labels: castArray(selectedLabelsId || []).map((id) => ({ id })),
+              labels: _.castArray(selectedLabelsId || []).map((id) => ({ id })),
             }, { relate: true });
         });
         req.flash('info', i18next.t('flash.tasks.create.success'));
@@ -202,7 +198,7 @@ export default (app) => {
               id: req.params.id,
               creatorId: req.currentUser.id,
               ...req.body.object,
-              labels: castArray(selectedLabelsId || []).map((id) => ({ id })),
+              labels: _.castArray(selectedLabelsId || []).map((id) => ({ id })),
             }, { relate: true, unrelate: true });
         });
         req.flash('info', i18next.t('flash.tasks.update.success'));

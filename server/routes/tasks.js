@@ -1,6 +1,10 @@
 import i18next from 'i18next';
 import { ValidationError } from 'objection';
-import { castArray, includes, assign } from 'lodash';
+import _, {
+  castArray,
+  includes,
+  assign,
+} from 'lodash';
 
 const addPropertySelected = (collection, selectedIds) => {
   if (!selectedIds) {
@@ -19,18 +23,10 @@ const addPropertySelected = (collection, selectedIds) => {
 export default (app) => {
   app
     .get('/tasks', { name: 'tasks#index', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
+      const { query: { isCreatorUser }, currentUser: { id: currentUserId } } = req;
+      const filterCondition = { ...req.query, creatorId: isCreatorUser && currentUserId };
+      const queryCondition = _.pickBy(filterCondition, (value, key) => value && key !== 'isCreatorUser');
       try {
-        const condition = Object
-          .entries(req.query)
-          .reduce((acc, [key, value]) => {
-            if (!value) {
-              return acc;
-            }
-            if (key === 'isCreatorUser' && value) {
-              return { ...acc, creatorId: req.currentUser.id };
-            }
-            return { ...acc, [key]: value };
-          }, {});
         const [
           allTaskStatuses,
           allExecutors,
@@ -43,16 +39,16 @@ export default (app) => {
           app.objection.models.task
             .query()
             .withGraphJoined('[executors, creators, taskStatuses, labels]')
-            .where(condition)
+            .where(queryCondition)
             .orderBy('id', 'desc'),
         ]);
         reply.render('tasks/index', {
           filters:
           {
-            taskStatusId: addPropertySelected(allTaskStatuses, condition.taskStatusId),
-            executorId: addPropertySelected(allExecutors, condition.executorId),
-            labelId: addPropertySelected(allLabels, condition.labelId),
-            isCreatorUser: condition.creatorId && true,
+            taskStatusId: addPropertySelected(allTaskStatuses, filterCondition.taskStatusId),
+            executorId: addPropertySelected(allExecutors, filterCondition.executorId),
+            labelId: addPropertySelected(allLabels, filterCondition.labelId),
+            isCreatorUser: filterCondition.isCreatorUser,
           },
           tasks,
         });

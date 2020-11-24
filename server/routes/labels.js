@@ -18,7 +18,7 @@ export default (app) => {
       try {
         await app.objection.models.label.query().insert(req.body.object);
         req.flash('info', i18next.t('flash.labels.create.success'));
-        reply.code(201).redirect(302, app.reverse('labels#index'));
+        reply.redirect(app.reverse('labels#index'));
         return reply;
       } catch (err) {
         if (err instanceof ValidationError) {
@@ -83,7 +83,7 @@ export default (app) => {
         }
         await toDelete.$query().delete();
         req.flash('info', i18next.t('flash.labels.delete.success'));
-        reply.code(204).redirect(302, app.reverse('labels#index'));
+        reply.redirect(app.reverse('labels#index'));
         return reply;
       } catch (err) {
         reply.send(err);

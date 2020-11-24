@@ -22,7 +22,7 @@ export default (app) => {
       try {
         await app.objection.models.user.query().insert(req.body.object);
         req.flash('info', i18next.t('flash.users.create.success'));
-        reply.code(201).redirect(302, app.reverse('root'));
+        reply.redirect(app.reverse('root'));
         return reply;
       } catch (err) {
         if (err instanceof ValidationError) {
@@ -75,7 +75,7 @@ export default (app) => {
         await app.objection.models.user.query().deleteById(req.params.id);
         req.session.delete();
         req.flash('info', i18next.t('flash.users.delete.succes'));
-        reply.code(204).redirect(302, app.reverse('users#index'));
+        reply.redirect(app.reverse('users#index'));
         return reply;
       } catch (err) {
         reply.send(err);

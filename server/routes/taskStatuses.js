@@ -9,7 +9,7 @@ export default (app) => {
       return reply;
     })
 
-    .get('/taskStatuses/new', { name: 'taskStatuses#new', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
+    .get('/taskStatuses/new', { name: 'taskStatuses#new', preHandler: app.auth([app.verifyAuth]) }, (req, reply) => {
       const taskStatus = {};
       reply.render('taskStatuses/new', { taskStatus });
     })

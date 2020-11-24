@@ -5,12 +5,9 @@ import _ from 'lodash';
 const normalizeData = (collection, ids) => {
   const selectedIds = new Set(_.castArray(ids).map(Number));
 
-  const normalized = collection.map((item) => {
-    if (!selectedIds.has(item.id)) {
-      return item;
-    }
-    return _.assign(item, { selected: 'selected' });
-  });
+  const normalized = collection.map((item) => (
+    !selectedIds.has(item.id) ? item : _.assign(item, { selected: 'selected' })
+  ));
 
   return normalized;
 };

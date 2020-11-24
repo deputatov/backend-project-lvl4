@@ -18,7 +18,7 @@ export default (app) => {
       try {
         await app.objection.models.taskStatus.query().insert(req.body.object);
         req.flash('info', i18next.t('flash.taskStatuses.create.success'));
-        reply.code(201).redirect(302, app.reverse('taskStatuses#index'));
+        reply.redirect(app.reverse('taskStatuses#index'));
         return reply;
       } catch (err) {
         if (err instanceof ValidationError) {
@@ -83,7 +83,7 @@ export default (app) => {
         }
         await toDelete.$query().delete();
         req.flash('info', i18next.t('flash.taskStatuses.delete.success'));
-        reply.code(204).redirect(302, app.reverse('taskStatuses#index'));
+        reply.redirect(app.reverse('taskStatuses#index'));
         return reply;
       } catch (err) {
         reply.send(err);

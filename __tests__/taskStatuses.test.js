@@ -1,10 +1,3 @@
-import {
-  describe,
-  beforeAll,
-  it,
-  expect,
-  afterAll,
-} from '@jest/globals';
 import faker from 'faker';
 import app from '../server/index.js';
 
@@ -36,16 +29,16 @@ describe('CRUD task statuses', () => {
     await server.close();
   });
 
-  it('users#create', async () => {
-    const res = await server.inject({
+  it('Sign up', async () => {
+    const createUser = await server.inject({
       method: 'POST',
       url: server.reverse('users#create'),
       payload: { object: { ...user } },
     });
-    expect(res.statusCode).toBe(302);
+    expect(createUser.statusCode).toBe(302);
   });
 
-  it('sessions#create', async () => {
+  it('Sign in', async () => {
     const auth = await server.inject({
       method: 'POST',
       url: server.reverse('sessions#create'),
@@ -56,43 +49,41 @@ describe('CRUD task statuses', () => {
     expect(auth.statusCode).toBe(302);
   });
 
-  it('taskStatuses#index', async () => {
-    const res = await server.inject({
+  it('Get task statuses', async () => {
+    const taskStatuses = await server.inject({
       method: 'GET',
       url: server.reverse('taskStatuses#index'),
       headers: { cookie },
     });
-    expect(res.statusCode).toBe(200);
+    expect(taskStatuses.statusCode).toBe(200);
   });
 
-  it('taskStatuses#new', async () => {
-    const res = await server.inject({
+  it('Create task status', async () => {
+    const newTaskStatus = await server.inject({
       method: 'GET',
       url: server.reverse('taskStatuses#new'),
       headers: { cookie },
     });
-    expect(res.statusCode).toBe(200);
-  });
+    expect(newTaskStatus.statusCode).toBe(200);
 
-  it('taskStatuses#create', async () => {
-    const res = await server.inject({
+    const createTaskStatus = await server.inject({
       method: 'POST',
       url: server.reverse('taskStatuses#create'),
       headers: { cookie },
       payload: { object: { ...taskStatus } },
     });
-    expect(res.statusCode).toBe(302);
+    expect(createTaskStatus.statusCode).toBe(302);
 
     const createdTaskStatus = await server.objection.models.taskStatus
       .query()
-      .findOne({ name: taskStatus.name });
+      .first();
     expect(createdTaskStatus).toMatchObject(taskStatus);
 
     const requiredFields = await server.inject({
       method: 'POST',
       url: server.reverse('taskStatuses#create'),
       headers: { cookie },
-      payload: { object: { } },
+      payload: { object: {} },
     });
     expect(requiredFields.statusCode).toBe(400);
 
@@ -104,51 +95,57 @@ describe('CRUD task statuses', () => {
     expect(serverError.statusCode).toBe(500);
   });
 
-  it('taskStatuses#edit', async () => {
-    const res = await server.inject({
+  it('Read task status', async () => {
+    const { id } = await server.objection.models.taskStatus.query().first();
+
+    const editTaskStatus = await server.inject({
       method: 'GET',
-      url: server.reverse('taskStatuses#edit', { id: 1 }),
+      url: server.reverse('taskStatuses#edit', { id }),
       headers: { cookie },
     });
-    expect(res.statusCode).toBe(200);
+    expect(editTaskStatus.statusCode).toBe(200);
   });
 
-  it('taskStatuses#update', async () => {
-    const res = await server.inject({
+  it('Update task status', async () => {
+    const { id } = await server.objection.models.taskStatus.query().first();
+
+    const updateTaskStatus = await server.inject({
       method: 'PATCH',
-      url: server.reverse('taskStatuses#update', { id: 1 }),
+      url: server.reverse('taskStatuses#update', { id }),
       headers: { cookie },
       payload: { object: { ...taskStatusUpdateData } },
     });
-    expect(res.statusCode).toBe(302);
+    expect(updateTaskStatus.statusCode).toBe(302);
 
     const updatedTaskStatus = await server.objection.models.taskStatus
       .query()
-      .findOne({ name: taskStatusUpdateData.name });
+      .first();
     expect(updatedTaskStatus).toMatchObject(taskStatusUpdateData);
 
     const serverError = await server.inject({
       method: 'PATCH',
-      url: server.reverse('taskStatuses#update', { id: 1 }),
+      url: server.reverse('taskStatuses#update', { id }),
       headers: { cookie },
     });
     expect(serverError.statusCode).toBe(500);
   });
 
-  it('taskStatuses#destroy', async () => {
-    const res = await server.inject({
-      method: 'DELETE',
-      url: server.reverse('taskStatuses#destroy', { id: 1 }),
-      headers: { cookie },
-    });
-    expect(res.statusCode).toBe(302);
+  it('Delete task status', async () => {
+    const { id } = await server.objection.models.taskStatus.query().first();
 
-    const notFound = await server.inject({
+    const deleteTaskStatus = await server.inject({
       method: 'DELETE',
-      url: server.reverse('taskStatuses#destroy', { id: 1 }),
+      url: server.reverse('taskStatuses#destroy', { id }),
       headers: { cookie },
     });
-    expect(notFound.statusCode).toBe(404);
+    expect(deleteTaskStatus.statusCode).toBe(302);
+
+    const taskStatusNotFound = await server.inject({
+      method: 'DELETE',
+      url: server.reverse('taskStatuses#destroy', { id }),
+      headers: { cookie },
+    });
+    expect(taskStatusNotFound.statusCode).toBe(404);
 
     const deletedTaskStatuses = await server.objection.models.taskStatus.query();
     expect(deletedTaskStatuses).toEqual([]);

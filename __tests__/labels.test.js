@@ -1,10 +1,3 @@
-import {
-  describe,
-  beforeAll,
-  it,
-  expect,
-  afterAll,
-} from '@jest/globals';
 import faker from 'faker';
 import app from '../server/index.js';
 
@@ -36,16 +29,16 @@ describe('CRUD labels', () => {
     await server.close();
   });
 
-  it('users#create', async () => {
-    const res = await server.inject({
+  it('Sign up', async () => {
+    const createUser = await server.inject({
       method: 'POST',
       url: server.reverse('users#create'),
       payload: { object: { ...user } },
     });
-    expect(res.statusCode).toBe(302);
+    expect(createUser.statusCode).toBe(302);
   });
 
-  it('sessions#create', async () => {
+  it('Sign in', async () => {
     const auth = await server.inject({
       method: 'POST',
       url: server.reverse('sessions#create'),
@@ -56,43 +49,39 @@ describe('CRUD labels', () => {
     expect(auth.statusCode).toBe(302);
   });
 
-  it('labels#index', async () => {
-    const res = await server.inject({
+  it('Get labels', async () => {
+    const labels = await server.inject({
       method: 'GET',
       url: server.reverse('labels#index'),
       headers: { cookie },
     });
-    expect(res.statusCode).toBe(200);
+    expect(labels.statusCode).toBe(200);
   });
 
-  it('labels#new', async () => {
-    const res = await server.inject({
+  it('Create label', async () => {
+    const newLabel = await server.inject({
       method: 'GET',
       url: server.reverse('labels#new'),
       headers: { cookie },
     });
-    expect(res.statusCode).toBe(200);
-  });
+    expect(newLabel.statusCode).toBe(200);
 
-  it('labels#create', async () => {
-    const res = await server.inject({
+    const createLabel = await server.inject({
       method: 'POST',
       url: server.reverse('labels#create'),
       headers: { cookie },
       payload: { object: { ...label } },
     });
-    expect(res.statusCode).toBe(302);
+    expect(createLabel.statusCode).toBe(302);
 
-    const createdLabel = await server.objection.models.label
-      .query()
-      .findOne({ name: label.name });
+    const createdLabel = await server.objection.models.label.query().first();
     expect(createdLabel).toMatchObject(label);
 
     const requiredFields = await server.inject({
       method: 'POST',
       url: server.reverse('labels#create'),
       headers: { cookie },
-      payload: { object: { } },
+      payload: { object: {} },
     });
     expect(requiredFields.statusCode).toBe(400);
 
@@ -104,30 +93,36 @@ describe('CRUD labels', () => {
     expect(serverError.statusCode).toBe(500);
   });
 
-  it('labels#edit', async () => {
-    const res = await server.inject({
-      method: 'GET',
-      url: server.reverse('labels#edit', { id: 1 }),
-      headers: { cookie },
-    });
-    expect(res.statusCode).toBe(200);
+  it('Read label', async () => {
+    const { id } = await server.objection.models.label.query().first();
 
-    const notFound = await server.inject({
+    const nonExistentId = id + id;
+
+    const editLabel = await server.inject({
       method: 'GET',
-      url: server.reverse('labels#edit', { id: 2 }),
+      url: server.reverse('labels#edit', { id }),
       headers: { cookie },
     });
-    expect(notFound.statusCode).toBe(404);
+    expect(editLabel.statusCode).toBe(200);
+
+    const labelNotFound = await server.inject({
+      method: 'GET',
+      url: server.reverse('labels#edit', { id: nonExistentId }),
+      headers: { cookie },
+    });
+    expect(labelNotFound.statusCode).toBe(404);
   });
 
-  it('labels#update', async () => {
-    const res = await server.inject({
+  it('Update label', async () => {
+    const { id } = await server.objection.models.label.query().first();
+
+    const updateLabel = await server.inject({
       method: 'PATCH',
-      url: server.reverse('labels#update', { id: 1 }),
+      url: server.reverse('labels#update', { id }),
       headers: { cookie },
       payload: { object: { ...labelUpdateData } },
     });
-    expect(res.statusCode).toBe(302);
+    expect(updateLabel.statusCode).toBe(302);
 
     const updatedLabel = await server.objection.models.label
       .query()
@@ -136,26 +131,30 @@ describe('CRUD labels', () => {
 
     const serverError = await server.inject({
       method: 'PATCH',
-      url: server.reverse('labels#update', { id: 1 }),
+      url: server.reverse('labels#update', { id }),
       headers: { cookie },
     });
     expect(serverError.statusCode).toBe(500);
   });
 
-  it('labels#destroy', async () => {
-    const res = await server.inject({
-      method: 'DELETE',
-      url: server.reverse('labels#destroy', { id: 1 }),
-      headers: { cookie },
-    });
-    expect(res.statusCode).toBe(302);
+  it('Delete label', async () => {
+    const { id } = await server.objection.models.label.query().first();
 
-    const notFound = await server.inject({
+    const nonExistentId = id + id;
+
+    const deleteLabel = await server.inject({
       method: 'DELETE',
-      url: server.reverse('labels#destroy', { id: 2 }),
+      url: server.reverse('labels#destroy', { id }),
       headers: { cookie },
     });
-    expect(notFound.statusCode).toBe(404);
+    expect(deleteLabel.statusCode).toBe(302);
+
+    const labelNotFound = await server.inject({
+      method: 'DELETE',
+      url: server.reverse('labels#destroy', { id: nonExistentId }),
+      headers: { cookie },
+    });
+    expect(labelNotFound.statusCode).toBe(404);
 
     const deletedLabels = await server.objection.models.label.query();
     expect(deletedLabels).toEqual([]);

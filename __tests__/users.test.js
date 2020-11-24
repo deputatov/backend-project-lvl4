@@ -1,10 +1,3 @@
-import {
-  describe,
-  beforeAll,
-  it,
-  expect,
-  afterAll,
-} from '@jest/globals';
 import faker from 'faker';
 import app from '../server/index.js';
 import encrypt from '../server/lib/secure.js';
@@ -36,33 +29,29 @@ describe('CRUD users', () => {
     await server.close();
   });
 
-  it('users#index', async () => {
-    const res = await server.inject({
+  it('Get users page', async () => {
+    const users = await server.inject({
       method: 'GET',
       url: server.reverse('users#index'),
     });
-    expect(res.statusCode).toBe(200);
+    expect(users.statusCode).toBe(200);
   });
 
-  it('users#new', async () => {
-    const res = await server.inject({
+  it('Create user', async () => {
+    const newUser = await server.inject({
       method: 'GET',
       url: server.reverse('users#new'),
     });
-    expect(res.statusCode).toBe(200);
-  });
+    expect(newUser.statusCode).toBe(200);
 
-  it('users#create', async () => {
-    const res = await server.inject({
+    const createUser = await server.inject({
       method: 'POST',
       url: server.reverse('users#create'),
       payload: { object: { ...user } },
     });
-    expect(res.statusCode).toBe(302);
+    expect(createUser.statusCode).toBe(302);
 
-    const createdUser = await server.objection.models.user
-      .query()
-      .findOne({ email: user.email });
+    const createdUser = await server.objection.models.user.query().first();
     expect(createdUser).toMatchObject({
       firstName: user.firstName,
       lastName: user.lastName,
@@ -76,40 +65,41 @@ describe('CRUD users', () => {
       payload: { object: { firstName: user.firstName } },
     });
     expect(requiredFields.statusCode).toBe(400);
-  });
 
-  it('sessions#create', async () => {
-    const auth = await server.inject({
+    const signIn = await server.inject({
       method: 'POST',
       url: server.reverse('sessions#create'),
       payload: { object: { email: user.email, password: user.password } },
     });
-    const { headers } = auth;
+    const { headers } = signIn;
     cookie = headers['set-cookie'];
-    expect(auth.statusCode).toBe(302);
+    expect(signIn.statusCode).toBe(302);
   });
 
-  it('users#edit', async () => {
-    const res = await server.inject({
+  it('Read user', async () => {
+    const { id } = await server.objection.models.user.query().first();
+
+    const editUser = await server.inject({
       method: 'GET',
-      url: server.reverse('users#edit', { id: 1 }),
+      url: server.reverse('users#edit', { id }),
       headers: { cookie },
     });
-    expect(res.statusCode).toBe(200);
+    expect(editUser.statusCode).toBe(200);
   });
 
-  it('users#update', async () => {
-    const res = await server.inject({
+  it('Update user', async () => {
+    const { id } = await server.objection.models.user.query().first();
+
+    const updateUser = await server.inject({
       method: 'PATCH',
-      url: server.reverse('users#update', { id: 1 }),
+      url: server.reverse('users#update', { id }),
       headers: { cookie },
       payload: { object: { ...userUpdateData } },
     });
-    expect(res.statusCode).toBe(302);
+    expect(updateUser.statusCode).toBe(302);
 
-    const updatedUser = await server.objection.models.user
-      .query()
-      .findOne({ email: userUpdateData.email });
+    const updatedUser = await server.objection.models.user.query().first();
+
     expect(updatedUser).toMatchObject({
       firstName: userUpdateData.firstName,
       lastName: userUpdateData.lastName,
@@ -119,19 +109,21 @@ describe('CRUD users', () => {
 
     const requiredFields = await server.inject({
       method: 'PATCH',
-      url: server.reverse('users#update', { id: 1 }),
+      url: server.reverse('users#update', { id }),
       payload: { object: { firstName: '' } },
     });
     expect(requiredFields.statusCode).toBe(302);
   });
 
-  it('users#destroy', async () => {
-    const res = await server.inject({
+  it('Delete user', async () => {
+    const { id } = await server.objection.models.user.query().first();
+
+    const deleteUser = await server.inject({
       method: 'DELETE',
-      url: server.reverse('users#destroy', { id: 1 }),
+      url: server.reverse('users#destroy', { id }),
       headers: { cookie },
     });
-    expect(res.statusCode).toBe(302);
+    expect(deleteUser.statusCode).toBe(302);
 
     const deletedUsers = await server.objection.models.user.query();
     expect(deletedUsers).toEqual([]);

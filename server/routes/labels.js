@@ -9,7 +9,7 @@ export default (app) => {
       return reply;
     })
 
-    .get('/labels/new', { name: 'labels#new', preHandler: app.auth([app.verifyAuth]) }, async (req, reply) => {
+    .get('/labels/new', { name: 'labels#new', preHandler: app.auth([app.verifyAuth]) }, (req, reply) => {
       const label = {};
       reply.render('labels/new', { label });
     })

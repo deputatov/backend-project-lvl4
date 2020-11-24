@@ -93,7 +93,7 @@ export default (app) => {
             }, { relate: true });
         });
         req.flash('info', i18next.t('flash.tasks.create.success'));
-        reply.code(201).redirect(302, app.reverse('tasks#index'));
+        reply.redirect(app.reverse('tasks#index'));
         return reply;
       } catch (err) {
         if (err instanceof ValidationError) {
@@ -198,7 +198,7 @@ export default (app) => {
             }, { relate: true, unrelate: true });
         });
         req.flash('info', i18next.t('flash.tasks.update.success'));
-        reply.code(201).redirect(302, app.reverse('tasks#index'));
+        reply.redirect(app.reverse('tasks#index'));
         return reply;
       } catch (err) {
         if (err instanceof ValidationError) {
@@ -238,7 +238,7 @@ export default (app) => {
           await toDelete.$relatedQuery('labels', trx).unrelate();
         });
         req.flash('info', i18next.t('flash.tasks.delete.success'));
-        reply.code(204).redirect(302, app.reverse('tasks#index'));
+        reply.redirect(app.reverse('tasks#index'));
         return reply;
       } catch (err) {
         reply.send(err);

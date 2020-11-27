@@ -79,7 +79,7 @@ export default (app) => {
       const {
         taskStatusId: selectedTaskStatusId,
         executorId: selectedExecutorId,
-        labels: selectedLabelsId,
+        labels: selectedLabelIds,
       } = req.body.object;
       try {
         await app.objection.models.task.transaction(async (trx) => {
@@ -89,7 +89,7 @@ export default (app) => {
             .insertGraph({
               ...req.body.object,
               creatorId: req.currentUser.id,
-              labels: _.castArray(selectedLabelsId || []).map((id) => ({ id })),
+              labels: _.castArray(selectedLabelIds || []).map((id) => ({ id })),
             }, { relate: true });
         });
         req.flash('info', i18next.t('flash.tasks.create.success'));
@@ -110,7 +110,7 @@ export default (app) => {
             ...req.body.object,
             taskStatusId: normalizeData(allTaskStatuses, selectedTaskStatusId),
             executorId: normalizeData(allExecutors, selectedExecutorId),
-            labels: normalizeData(allLabels, selectedLabelsId),
+            labels: normalizeData(allLabels, selectedLabelIds),
           };
           req.flash('error', i18next.t('flash.tasks.create.error'));
           reply.code(err.statusCode).render('tasks/new', { task, errors: err.data });
@@ -179,7 +179,7 @@ export default (app) => {
       const {
         taskStatusId: selectedTaskStatusId,
         executorId: selectedExecutorId,
-        labels: selectedLabelsId,
+        labels: selectedLabelIds,
       } = req.body.object;
       try {
         const toPatch = await app.objection.models.task.query().findById(req.params.id);
@@ -194,7 +194,7 @@ export default (app) => {
               id: req.params.id,
               creatorId: req.currentUser.id,
               ...req.body.object,
-              labels: _.castArray(selectedLabelsId || []).map((id) => ({ id })),
+              labels: _.castArray(selectedLabelIds || []).map((id) => ({ id })),
             }, { relate: true, unrelate: true });
         });
         req.flash('info', i18next.t('flash.tasks.update.success'));
@@ -216,7 +216,7 @@ export default (app) => {
             ...req.body.object,
             taskStatusId: normalizeData(allTaskStatuses, selectedTaskStatusId),
             executorId: normalizeData(allExecutors, selectedExecutorId),
-            labels: normalizeData(allLabels, selectedLabelsId),
+            labels: normalizeData(allLabels, selectedLabelIds),
           };
           reply.code(err.statusCode).render('tasks/edit', { task, errors: err.data });
           return reply;

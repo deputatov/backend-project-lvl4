@@ -144,10 +144,7 @@ export default (app) => {
         const toEdit = await app.objection.models.task
           .query()
           .findById(req.params.id)
-          .withGraphFetched('labels')
-          .modifyGraph('labels', (builder) => {
-            builder.select('labels.id');
-          });
+          .withGraphJoined('labels');
         if (!toEdit) {
           reply.callNotFound();
           return reply;

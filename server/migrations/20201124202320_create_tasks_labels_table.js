@@ -13,7 +13,8 @@ exports.up = function (knex) {
       .unsigned()
       .references('id')
       .inTable('labels')
-      .onDelete('CASCADE')
+      .onDelete('RESTRICT')
+      .onUpdate('CASCADE')
       .index();
   });
 };

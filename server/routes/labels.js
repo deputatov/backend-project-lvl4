@@ -1,5 +1,5 @@
 import i18next from 'i18next';
-import { ValidationError } from 'objection';
+import { ValidationError, ForeignKeyViolationError } from 'objection';
 
 export default (app) => {
   app
@@ -86,6 +86,11 @@ export default (app) => {
         reply.redirect(app.reverse('labels#index'));
         return reply;
       } catch (err) {
+        if (err instanceof ForeignKeyViolationError) {
+          req.flash('error', i18next.t('flash.labels.delete.error'));
+          reply.redirect(app.reverse('labels#index'));
+          return reply;
+        }
         reply.send(err);
         return reply;
       }

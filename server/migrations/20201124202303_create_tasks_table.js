@@ -4,23 +4,28 @@ exports.up = function (knex) {
     table
       .integer('task_status_id')
       .unsigned()
+      .notNullable()
       .references('id')
       .inTable('task_statuses')
-      .onDelete('SET NULL')
+      .onDelete('RESTRICT')
+      .onUpdate('CASCADE')
       .index();
     table
       .integer('creator_id')
       .unsigned()
+      .notNullable()
       .references('id')
       .inTable('users')
-      .onDelete('SET NULL')
+      .onDelete('RESTRICT')
+      .onUpdate('CASCADE')
       .index();
     table
       .integer('executor_id')
       .unsigned()
       .references('id')
       .inTable('users')
-      .onDelete('SET NULL')
+      .onDelete('RESTRICT')
+      .onUpdate('CASCADE')
       .index();
     table.string('name');
     table.string('description');

@@ -1,5 +1,5 @@
 import i18next from 'i18next';
-import { ValidationError } from 'objection';
+import { ValidationError, ForeignKeyViolationError } from 'objection';
 
 export default (app) => {
   app
@@ -81,11 +81,17 @@ export default (app) => {
           reply.callNotFound();
           return reply;
         }
-        await toDelete.$query().delete();
+        await toDelete.$query().delete().debug();
         req.flash('info', i18next.t('flash.taskStatuses.delete.success'));
         reply.redirect(app.reverse('taskStatuses#index'));
         return reply;
       } catch (err) {
+        console.log(err);
+        if (err instanceof ForeignKeyViolationError) {
+          req.flash('error', i18next.t('flash.taskStatuses.delete.error'));
+          reply.redirect(app.reverse('taskStatuses#index'));
+          return reply;
+        }
         reply.send(err);
         return reply;
       }

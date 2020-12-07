@@ -1,7 +1,7 @@
 // @ts-check
 
 import i18next from 'i18next';
-import { ValidationError } from 'objection';
+import { ValidationError, ForeignKeyViolationError } from 'objection';
 
 export default (app) => {
   const opts = { preHandler: app.auth([app.verifyAuth, app.verifyUserCreator], { relation: 'and' }) };
@@ -78,6 +78,11 @@ export default (app) => {
         reply.redirect(app.reverse('users#index'));
         return reply;
       } catch (err) {
+        if (err instanceof ForeignKeyViolationError) {
+          req.flash('error', i18next.t('flash.users.delete.error'));
+          reply.redirect(app.reverse('users#index'));
+          return reply;
+        }
         reply.send(err);
         return reply;
       }

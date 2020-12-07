@@ -15,11 +15,17 @@ module.exports = {
     connection: {
       filename: './database.sqlite',
     },
+    pool: {
+      afterCreate: (conn, cb) => conn.run('PRAGMA foreign_keys = ON', cb),
+    },
     migrations,
   },
   test: {
     client: 'sqlite3',
     connection: ':memory:',
+    pool: {
+      afterCreate: (conn, cb) => conn.run('PRAGMA foreign_keys = ON', cb),
+    },
     migrations,
   },
   production: {

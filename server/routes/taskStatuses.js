@@ -81,7 +81,7 @@ export default (app) => {
           reply.callNotFound();
           return reply;
         }
-        await toDelete.$query().delete().debug();
+        await toDelete.$query().delete();
         req.flash('info', i18next.t('flash.taskStatuses.delete.success'));
         reply.redirect(app.reverse('taskStatuses#index'));
         return reply;

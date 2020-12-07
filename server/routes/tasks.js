@@ -230,10 +230,7 @@ export default (app) => {
           reply.callNotFound();
           return reply;
         }
-        await app.objection.models.task.transaction(async (trx) => {
-          await toDelete.$query(trx).delete();
-          await toDelete.$relatedQuery('labels', trx).unrelate();
-        });
+        await toDelete.$query().delete();
         req.flash('info', i18next.t('flash.tasks.delete.success'));
         reply.redirect(app.reverse('tasks#index'));
         return reply;

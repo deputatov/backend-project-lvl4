@@ -23,10 +23,10 @@
   },
   "labels": {
     "new": {
-      "name": "label3"
+      "name": "label4"
     },
     "existing": {
-      "name": "label2"
+      "name": "label3"
     },
     "updated": {
       "name": "updated label name"

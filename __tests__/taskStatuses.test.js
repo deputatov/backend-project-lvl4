@@ -78,7 +78,6 @@ describe('CRUD task statuses', () => {
 
   it('Read task status', async () => {
     const params = testData.taskStatuses.existing;
-    console.log(params);
     const { id } = await models.taskStatus.query().findOne({ name: params.name });
 
     const res1 = await app.inject({

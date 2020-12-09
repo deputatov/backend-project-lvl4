@@ -86,7 +86,6 @@ export default (app) => {
         reply.redirect(app.reverse('taskStatuses#index'));
         return reply;
       } catch (err) {
-        console.log(err);
         if (err instanceof ForeignKeyViolationError) {
           req.flash('error', i18next.t('flash.taskStatuses.delete.error'));
           reply.redirect(app.reverse('taskStatuses#index'));

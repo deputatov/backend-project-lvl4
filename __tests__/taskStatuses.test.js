@@ -1,164 +1,151 @@
-import faker from 'faker';
-import app from '../server/index.js';
-
-const userData = {
-  firstName: faker.name.firstName(),
-  lastName: faker.name.lastName(),
-  email: faker.internet.email(),
-  password: faker.internet.password(),
-};
-
-const taskStatusData = {
-  name: faker.lorem.word(),
-};
-
-const updatedTaskStatusData = {
-  name: faker.lorem.word(),
-};
+import getApp from '../server/index.js';
+import { getTestData, prepareData, getSessionCookie } from './helpers/index.js';
 
 describe('CRUD task statuses', () => {
-  let server;
+  let app;
+  let knex;
+  let models;
   let cookie;
 
+  const testData = getTestData();
+
   beforeAll(async () => {
-    server = await app();
-    await server.objection.knex.migrate.latest();
+    app = await getApp();
+    knex = app.objection.knex;
+    models = app.objection.models;
+  });
+
+  beforeEach(async () => {
+    await knex.migrate.latest();
+    await prepareData(app);
+    cookie = await getSessionCookie(app, testData.users.existing1);
+  });
+
+  afterEach(async () => {
+    await knex.migrate.rollback();
   });
 
   afterAll(async () => {
-    await server.close();
-  });
-
-  it('Sign up', async () => {
-    const res = await server.inject({
-      method: 'POST',
-      url: server.reverse('users#create'),
-      payload: { object: { ...userData } },
-    });
-    expect(res.statusCode).toBe(302);
-  });
-
-  it('Sign in', async () => {
-    const auth = await server.inject({
-      method: 'POST',
-      url: server.reverse('sessions#create'),
-      payload: { object: { email: userData.email, password: userData.password } },
-    });
-    const { headers } = auth;
-    cookie = headers['set-cookie'];
-    expect(auth.statusCode).toBe(302);
+    await app.close();
   });
 
   it('Get task statuses', async () => {
-    const res = await server.inject({
+    const res = await app.inject({
       method: 'GET',
-      url: server.reverse('taskStatuses#index'),
-      headers: { cookie },
+      url: app.reverse('taskStatuses#index'),
+      cookies: cookie,
+    });
+    expect(res.statusCode).toBe(200);
+  });
+
+  it('New task status', async () => {
+    const res = await app.inject({
+      method: 'GET',
+      url: app.reverse('taskStatuses#new'),
+      cookies: cookie,
     });
     expect(res.statusCode).toBe(200);
   });
 
   it('Create task status', async () => {
-    const res1 = await server.inject({
-      method: 'GET',
-      url: server.reverse('taskStatuses#new'),
-      headers: { cookie },
-    });
-    expect(res1.statusCode).toBe(200);
-
-    const res2 = await server.inject({
+    const params = testData.taskStatuses.new;
+    const res1 = await app.inject({
       method: 'POST',
-      url: server.reverse('taskStatuses#create'),
-      headers: { cookie },
-      payload: { object: { ...taskStatusData } },
+      url: app.reverse('taskStatuses#create'),
+      cookies: cookie,
+      payload: { object: { ...params } },
     });
-    expect(res2.statusCode).toBe(302);
+    expect(res1.statusCode).toBe(302);
 
-    const result = await server.objection.models.taskStatus.query().first();
-    expect(result).toMatchObject(taskStatusData);
+    const result = await models.taskStatus.query().findOne({ name: params.name });
+    expect(result).toMatchObject(params);
 
-    const res3 = await server.inject({
+    const res2 = await app.inject({
       method: 'POST',
-      url: server.reverse('taskStatuses#create'),
-      headers: { cookie },
+      url: app.reverse('taskStatuses#create'),
+      cookies: cookie,
       payload: { object: {} },
     });
-    expect(res3.statusCode).toBe(400);
+    expect(res2.statusCode).toBe(400);
 
-    const res4 = await server.inject({
+    const res3 = await app.inject({
       method: 'POST',
-      url: server.reverse('taskStatuses#create'),
-      headers: { cookie },
+      url: app.reverse('taskStatuses#create'),
+      cookies: cookie,
     });
-    expect(res4.statusCode).toBe(500);
+    expect(res3.statusCode).toBe(500);
   });
 
   it('Read task status', async () => {
-    const { id } = await server.objection.models.taskStatus.query().first();
+    const params = testData.taskStatuses.existing;
+    console.log(params);
+    const { id } = await models.taskStatus.query().findOne({ name: params.name });
 
-    const res1 = await server.inject({
+    const res1 = await app.inject({
       method: 'GET',
-      url: server.reverse('taskStatuses#edit', { id }),
-      headers: { cookie },
+      url: app.reverse('taskStatuses#edit', { id }),
+      cookies: cookie,
     });
     expect(res1.statusCode).toBe(200);
 
-    const res2 = await server.inject({
+    const res2 = await app.inject({
       method: 'GET',
-      url: server.reverse('taskStatuses#edit', { id: 'NotFound' }),
-      headers: { cookie },
+      url: app.reverse('taskStatuses#edit', { id: 'NotFound' }),
+      cookies: cookie,
     });
     expect(res2.statusCode).toBe(404);
   });
 
   it('Update task status', async () => {
-    const { id } = await server.objection.models.taskStatus.query().first();
+    const { existing, updated } = testData.taskStatuses;
+    const { id } = await models.taskStatus.query().findOne({ name: existing.name });
 
-    const res1 = await server.inject({
+    const res1 = await app.inject({
       method: 'PATCH',
-      url: server.reverse('taskStatuses#update', { id }),
-      headers: { cookie },
-      payload: { object: { ...updatedTaskStatusData } },
+      url: app.reverse('taskStatuses#update', { id }),
+      cookies: cookie,
+      payload: { object: { ...updated } },
     });
     expect(res1.statusCode).toBe(302);
 
-    const result = await server.objection.models.taskStatus.query().first();
-    expect(result).toMatchObject(updatedTaskStatusData);
+    const result = await models.taskStatus.query().findById(id);
+    expect(result).toMatchObject(updated);
 
-    const res2 = await server.inject({
+    const res2 = await app.inject({
       method: 'PATCH',
-      url: server.reverse('taskStatuses#update', { id: 'NotFound' }),
-      headers: { cookie },
-      payload: { object: { ...updatedTaskStatusData } },
+      url: app.reverse('taskStatuses#update', { id: 'NotFound' }),
+      cookies: cookie,
+      payload: { object: { ...updated } },
     });
     expect(res2.statusCode).toBe(404);
 
-    const res3 = await server.inject({
+    const res3 = await app.inject({
       method: 'PATCH',
-      url: server.reverse('taskStatuses#update', { id }),
-      headers: { cookie },
+      url: app.reverse('taskStatuses#update', { id }),
+      cookies: cookie,
     });
     expect(res3.statusCode).toBe(500);
   });
 
   it('Delete task status', async () => {
-    const { id } = await server.objection.models.taskStatus.query().first();
+    const params = testData.taskStatuses.existing;
+    const { id } = await models.taskStatus.query().findOne({ name: params.name });
 
-    const res1 = await server.inject({
+    const res1 = await app.inject({
       method: 'DELETE',
-      url: server.reverse('taskStatuses#destroy', { id }),
-      headers: { cookie },
+      url: app.reverse('taskStatuses#destroy', { id }),
+      cookies: cookie,
     });
     expect(res1.statusCode).toBe(302);
 
-    const res2 = await server.inject({
+    const res2 = await app.inject({
       method: 'DELETE',
-      url: server.reverse('taskStatuses#destroy', { id }),
-      headers: { cookie },
+      url: app.reverse('taskStatuses#destroy', { id }),
+      cookies: cookie,
     });
     expect(res2.statusCode).toBe(404);
 
-    const result = await server.objection.models.taskStatus.query();
-    expect(result).toEqual([]);
+    const result = await models.taskStatus.query().findById(id);
+    expect(result).toBeUndefined();
   });
 });

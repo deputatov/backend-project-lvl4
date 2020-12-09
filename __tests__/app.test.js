@@ -1,18 +1,10 @@
-// @ts-check
-import {
-  describe,
-  beforeAll,
-  it,
-  expect,
-  afterAll,
-} from '@jest/globals';
-import app from '../server/index.js';
+import getApp from '../server/index.js';
 
 describe('requests', () => {
   let server;
 
   beforeAll(async () => {
-    server = await app();
+    server = await getApp();
   });
 
   it('GET 200', async () => {

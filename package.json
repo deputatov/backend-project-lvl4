@@ -12,6 +12,11 @@
       "start": "NODE_ENV=production node dist/server/bin/server.js",
       "develop": "npx nodemon --exec DEBUG=application:* npx babel-node server/bin/server.js"
    },
+   "jest": {
+    "modulePathIgnorePatterns": [
+      "<rootDir>/__tests__/helpers/"
+    ]
+  },
    "author": "Nikita Deputatov",
    "license": "ISC",
    "repository": {

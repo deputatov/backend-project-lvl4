@@ -1,140 +1,137 @@
 import _ from 'lodash';
-import faker from 'faker';
-import app from '../server/index.js';
+import getApp from '../server/index.js';
 import encrypt from '../server/lib/secure.js';
-
-const userData = {
-  firstName: faker.name.firstName(),
-  lastName: faker.name.lastName(),
-  email: faker.internet.email(),
-  password: faker.internet.password(),
-};
-
-const updatedUserData = {
-  firstName: faker.name.firstName(),
-  lastName: faker.name.lastName(),
-  email: faker.internet.email(),
-  password: faker.internet.password(),
-};
+import { getTestData, prepareData, getSessionCookie } from './helpers/index.js';
 
 describe('CRUD users', () => {
-  let server;
-  let cookie;
+  let app;
+  let knex;
+  let models;
+  let cookie1;
+  let cookie2;
+
+  const testData = getTestData();
 
   beforeAll(async () => {
-    server = await app();
-    await server.objection.knex.migrate.latest();
+    app = await getApp();
+    knex = app.objection.knex;
+    models = app.objection.models;
+  });
+
+  beforeEach(async () => {
+    await knex.migrate.latest();
+    await prepareData(app);
+    cookie1 = await getSessionCookie(app, testData.users.existing1);
+    cookie2 = await getSessionCookie(app, testData.users.existing2);
+  });
+
+  afterEach(async () => {
+    await knex.migrate.rollback();
   });
 
   afterAll(async () => {
-    await server.close();
+    await app.close();
   });
 
   it('Get users page', async () => {
-    const res = await server.inject({
+    const res = await app.inject({
       method: 'GET',
-      url: server.reverse('users#index'),
+      url: app.reverse('users#index'),
     });
     expect(res.statusCode).toBe(200);
   });
 
-  it('Create user', async () => {
-    const res1 = await server.inject({
+  it('New user', async () => {
+    const res1 = await app.inject({
       method: 'GET',
-      url: server.reverse('users#new'),
+      url: app.reverse('users#new'),
     });
     expect(res1.statusCode).toBe(200);
+  });
 
-    const res2 = await server.inject({
+  it('Create user', async () => {
+    const params = testData.users.new;
+    const res1 = await app.inject({
       method: 'POST',
-      url: server.reverse('users#create'),
-      payload: { object: { ...userData } },
+      url: app.reverse('users#create'),
+      payload: { object: { ...params } },
     });
-    expect(res2.statusCode).toBe(302);
+    expect(res1.statusCode).toBe(302);
 
-    const result = await server.objection.models.user.query().first();
-    const obj = { ...userData, passwordDigest: encrypt(userData.password) };
-    const expected = _.omit(obj, ['password']);
-    expect(result).toMatchObject(expected);
+    const expected = {
+      ..._.omit(params, 'password'),
+      passwordDigest: encrypt(params.password),
+    };
+    const user = await models.user.query().findOne({ email: params.email });
+    expect(user).toMatchObject(expected);
 
-    const res3 = await server.inject({
+    const res2 = await app.inject({
       method: 'POST',
-      url: server.reverse('users#create'),
-      payload: { object: { firstName: userData.firstName } },
+      url: app.reverse('users#create'),
+      payload: { object: { firstName: params.firstName } },
     });
-    expect(res3.statusCode).toBe(400);
-
-    const auth = await server.inject({
-      method: 'POST',
-      url: server.reverse('sessions#create'),
-      payload: { object: { email: userData.email, password: userData.password } },
-    });
-    const { headers } = auth;
-    cookie = headers['set-cookie'];
-    expect(auth.statusCode).toBe(302);
+    expect(res2.statusCode).toBe(400);
   });
 
   it('Read user', async () => {
-    const { id } = await server.objection.models.user.query().first();
+    const params = testData.users.existing1;
+    const { id } = await models.user.query().findOne({ email: params.email });
 
-    const res1 = await server.inject({
+    const res1 = await app.inject({
       method: 'GET',
-      url: server.reverse('users#edit', { id }),
-      headers: { cookie },
+      url: app.reverse('users#edit', { id }),
+      cookies: cookie1,
     });
     expect(res1.statusCode).toBe(200);
 
-    const res2 = await server.inject({
+    const res2 = await app.inject({
       method: 'GET',
-      url: server.reverse('users#edit', { id: 'AnotherID' }),
-      headers: { cookie },
+      url: app.reverse('users#edit', { id: 'AnotherID' }),
+      cookies: cookie1,
     });
     expect(res2.statusCode).toBe(302);
   });
 
   it('Update user', async () => {
-    const { id } = await server.objection.models.user.query().first();
+    const { existing1, updated } = testData.users;
+    const { id } = await models.user.query().findOne({ email: existing1.email });
 
-    const res1 = await server.inject({
+    const res1 = await app.inject({
       method: 'PATCH',
-      url: server.reverse('users#update', { id }),
-      headers: { cookie },
-      payload: { object: { ...updatedUserData } },
+      url: app.reverse('users#update', { id }),
+      cookies: cookie1,
+      payload: { object: { ...updated } },
     });
     expect(res1.statusCode).toBe(302);
 
-    const result = await server.objection.models.user.query().first();
-    const obj = { ...updatedUserData, passwordDigest: encrypt(updatedUserData.password) };
-    const expected = _.omit(obj, ['password']);
-    expect(result).toMatchObject(expected);
+    const expected = {
+      ..._.omit(updated, 'password'),
+      passwordDigest: encrypt(updated.password),
+    };
+    const user = await models.user.query().findById(id);
+    expect(user).toMatchObject(expected);
 
-    const res2 = await server.inject({
+    const res3 = await app.inject({
       method: 'PATCH',
-      url: server.reverse('users#update', { id }),
-      payload: { object: { firstName: '' } },
-    });
-    expect(res2.statusCode).toBe(302);
-
-    const res3 = await server.inject({
-      method: 'PATCH',
-      url: server.reverse('users#update', { id: 'AnotherID' }),
-      headers: { cookie },
-      payload: { object: { ...updatedUserData } },
+      url: app.reverse('users#update', { id: 'AnotherID' }),
+      cookies: cookie1,
+      payload: { object: { ...updated } },
     });
     expect(res3.statusCode).toBe(302);
   });
 
   it('Delete user', async () => {
-    const { id } = await server.objection.models.user.query().first();
+    const { email } = testData.users.existing2;
+    const { id } = await models.user.query().findOne({ email });
 
-    const res = await server.inject({
+    const res = await app.inject({
       method: 'DELETE',
-      url: server.reverse('users#destroy', { id }),
-      headers: { cookie },
+      url: app.reverse('users#destroy', { id }),
+      cookies: cookie2,
     });
     expect(res.statusCode).toBe(302);
 
-    const result = await server.objection.models.user.query();
-    expect(result).toEqual([]);
+    const result = await models.user.query().findById(id);
+    expect(result).toBeUndefined();
   });
 });

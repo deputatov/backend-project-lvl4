@@ -25,7 +25,7 @@ lint:
 	npx eslint .
 
 test:
-	npm run test
+	npm test -s
 
 make debug:
 	DEBUG=knex:query make start

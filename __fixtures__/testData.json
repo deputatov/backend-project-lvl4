@@ -1,0 +1,62 @@
+{
+  "users": {
+    "new": {
+      "firstName": "malika",
+      "lastName": "hodkiewicz",
+      "email": "malika_hodkiewicz75@live.com",
+      "password": "RLJvaIgPOnX5r03"
+    },
+    "existing1": {
+      "email": "lawrence.kulas87@outlook.com",
+      "password": "O6AvLIQL1cbzrre"
+    },
+    "existing2": {
+      "email": "Delphia.McLaughlin53@yahoo.com",
+      "password": "9qR2CmLc3rSmLur"
+    },
+    "updated": {
+      "firstName": "frida",
+      "lastName": "hatchings",
+      "email": "frida_hatchings75@live.com",
+      "password": "FYbqMONLd_f_fO3"
+    }
+  },
+  "labels": {
+    "new": {
+      "name": "label3"
+    },
+    "existing": {
+      "name": "label2"
+    },
+    "updated": {
+      "name": "updated label name"
+    }
+  },
+  "taskStatuses": {
+    "new": {
+      "name": "taskStatus3"
+    },
+    "existing": {
+      "name": "taskStatus2"
+    },
+    "updated": {
+      "name": "updated task status name"
+    }
+  },
+  "tasks": {
+    "new": {
+      "name": "task3",
+      "description": "description3",
+      "taskStatusId": 1,
+      "executorId": 1,
+      "labels": [1, 2]
+    },
+    "updated": {
+      "name": "updated task name",
+      "description": "updated task description",
+      "taskStatusId": 2,
+      "executorId": 2,
+      "labels": [1]
+    }
+  }
+}
